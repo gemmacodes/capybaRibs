@@ -111,6 +111,8 @@ internal class AllSightingsMapInteractor(
         viewLifecycle.startStop {
             bind(view to rib.output using ViewEventToOutput)
             bind(dialog.rx2() to dialogEventConsumer)
+            bind(feature to view using StateToViewModel)
+            bind(view to feature using ViewEventToWish)
         }
     }
 

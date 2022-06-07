@@ -58,7 +58,7 @@ class SightingsDetailsViewImpl(
 
         override fun invoke(viewDependency: SightingsDetailsView.ViewDependency): ViewFactory<SightingsDetailsView> =
             ViewFactory {
-                SightingsDetailsViewImplA(
+                SightingsDetailsViewImpl(
                     androidView = it.inflate(layoutRes)
                 )
             }
