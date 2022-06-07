@@ -4,7 +4,9 @@ interface AppRoot : Rib, Connectable<Input, Output> {
         val datasource: SightingsDatasource
     }
 
-    sealed class Input {}
+    sealed class Input {
+        data class ShowSightingDetails(val id: String) : Input()
+    }
 
     sealed class Output {}
 
@@ -26,7 +28,7 @@ class AppRootViewImpl private constructor(
 
     override fun getParentViewForSubtree(subtreeOf: Node<*>): ViewGroup =
     when (subtreeOf) {
-        is AppRootNavigationBar -> permanentContainer
+        is NavBar -> permanentContainer
         else -> childContainer
     }
 
@@ -43,28 +45,66 @@ class AppRootViewImpl private constructor(
 
 internal class AppRootInteractor(
     buildParams: BuildParams<*>,
-    private val backStack: BackStack<Configuration>
+    private val backStack: BackStack<Configuration>,
+    private val sightingDetails: SightingDetailsRibDialog,
 ) : Interactor<AppRoot, AppRootView>(
     buildParams = buildParams
 ) {
 
+    private lateinit var dialogLauncher: DialogLauncher
+
     override fun onCreate(nodeLifecycle: Lifecycle) {
         nodeLifecycle.createDestroy {
+            dialogLauncher = node.integrationPoint.dialogLauncher
         }
 
         whenChildBuilt<NavBar>(nodeLifecycle) { commonLifecycle, child ->
             commonLifecycle.createDestroy {
-                bind(child.output to viewEventConsumer)
+                bind(child.output to navBarOutputConsumer)
+            }
+        }
+        whenChildBuilt<AllSightingsList>(nodeLifecycle) { commonLifecycle, child ->
+            commonLifecycle.createDestroy {
+                bind(child.output to allSightingsListEventConsumer)
             }
         }
     }
 
+        override fun onViewCreated(view: AppRootView, viewLifecycle: Lifecycle) {
+        viewLifecycle.startStop {
+            bind(dialog.rx2() to dialogEventConsumer)
+        }
+    }
 
-    private val viewEventConsumer: Consumer<AppRootNavigationBar.Output> = Consumer {
+
+    private val navBarOutputConsumer: Consumer<NavBar.Output> = Consumer {
         when (it) {
             NavBar.Output.MapButtonClicked -> backStack.push(Configuration.Content.AllSightingsMap)
             NavBar.Output.ListButtonClicked -> backStack.push(Configuration.Content.AllSightingsList)
             NavBar.Output.AddSightingButtonClicked -> backStack.push(Configuration.Content.NewSightingMap)
+        }
+    }
+
+        private val allSightingsListOutputConsumer: Consumer<AllSightingsList.Output> = Consumer {
+        when (it) {
+            AllSightingsList.Output.SightingSelected -> {
+                initDialog()
+                backStack.push(Configuration.Overlay.SightingDetails(it.id))
+                }
+        }
+    }
+
+        private fun initDialog() {
+        dialogLauncher.show(sightingDetails) { dialogLauncher.hide(sightingDetails) }
+    }
+
+
+    private val dialogEventConsumer: Consumer<SightingDetailsRibDialog.Event> = Consumer {
+        when (it) {
+            SightingDetailsRibDialog.Event.NegativeButtonClicked -> {
+                dialogLauncher.hide(dialog)
+            }
+            else -> {}
         }
     }
 
@@ -98,9 +138,13 @@ internal class AppRootRouter(
             object AllSightingsMap : Configuration()
             @Parcelize
             object AllSightingsList : Configuration()
-            @Parcelize
-            data class SightingDetails(val id: String) : Configuration()
         }
+
+        sealed class Overlay : Configuration() {
+            @Parcelize
+            data class SightingDetails(val id: String): Overlay()
+        }
+        
     }
 
     override fun resolve(routing: Routing<Configuration>): Resolution =
@@ -110,8 +154,13 @@ internal class AppRootRouter(
                 NewSightingForm -> child { newSightingFormBuilder.build(it) }
                 AllSightingsMap -> child { allSightingsMapBuilder.build(it) }
                 AllSightingsList -> child { allSightingsListBuilder.build(it) }
-                SightingDetails -> child { sightingDetailsBuilder.build(it) }
                 NavBar -> child { navBarBuilder.build(it) }
+                SightingDetails -> showDialog(
+                        routingSource,          
+                        routing.identifier,     
+                        dialogLauncher,         
+                        SightingDetailsRibDialog              
+                    )
             }
         }
 }
@@ -141,5 +190,6 @@ internal class AppRootChildBuilders(
         AllSightingsList.Dependency,
         SightingDetails.Dependency
 }
+
 
 

@@ -1,145 +1,159 @@
-interface AppRoot : Rib, Connectable<Input, Output> {
+interface AllSightingsList : Rib, Connectable<Input, Output> {
 
     interface Dependency {
-        val datasource: SightingsDatasource
     }
 
-    sealed class Input {}
+    sealed class Input {
+    }
 
-    sealed class Output {}
+    sealed class Output{
+        data class SightingSelected(val id: String) : Output()
+    }
 
 }
 
-interface AppRootView : RibView { 
+interface AllSightingsListView : RibView, ObservableSource<Event> {
 
-    interface Factory : ViewFactory<AppRootView>
-    
+    sealed class Event {
+        data class ShowSightingDetails (val id: String) : Event()
+    }
+
+    interface Factory : ViewFactory<AllSightingsListView>
 }
 
-
-class AppRootViewImpl private constructor(
+class AllSightingsListViewImpl private constructor(
     override val androidView: ViewGroup,
-) : AndroidRibView() {
+    private val events: PublishRelay<Event> = PublishRelay.create()
+) : AndroidRibView(),
+    AllSightingsListView,
+    ObservableSource<Event> by events {
 
-    private val childContainer: FrameLayout by lazy { findViewById(R.id.childContainer) }
-    private val permanentContainer: FrameLayout by lazy { findViewById(R.id.permanentContainer) }
+    private val sightingsListRv: RecyclerView by lazy { findViewById(R.id.sightingsRv) }
 
-    override fun getParentViewForSubtree(subtreeOf: Node<*>): ViewGroup =
-    when (subtreeOf) {
-        is AppRootNavigationBar -> permanentContainer
-        else -> childContainer
+
+    sightingsListRv.layoutManager =
+            GridLayoutManager(view.context, 2, GridLayoutManager.VERTICAL, false)
+
+    sightingsAdapter = SightingsAdapter {
+        events.accept(ShowSightingDetails(it.id))
     }
+
+    sightingsListRv.adapter = sightingsAdapter
 
     class Factory(
-        @LayoutRes private val layoutRes: Int = R.layout.rib_app_root
-    ) : AppRootView.Factory {
+        @LayoutRes private val layoutRes: Int = R.layout.rib_all_sightings_list
+    ) : AllSightingsListView.Factory {
 
-        override fun invoke(context: ViewFactory.Context): AppRootView =
-            AppRootViewImpl(
+        override fun invoke(context: ViewFactory.Context): AllSightingsListView =
+            AllSightingsListViewImpl(
                 context.inflate(layoutRes)
             )
     }
 }
 
-internal class AppRootInteractor(
+internal class AllSightingsListInteractor(
     buildParams: BuildParams<*>,
-    private val backStack: BackStack<Configuration>
-) : Interactor<AppRoot, AppRootView>(
+    private val dialog: SightingDetailsRibDialog,
+) : Interactor<AllSightingsList, AllSightingsListView>(
     buildParams = buildParams
 ) {
 
+    private lateinit var dialogLauncher: DialogLauncher
+
     override fun onCreate(nodeLifecycle: Lifecycle) {
+        super.onCreate(nodeLifecycle)
         nodeLifecycle.createDestroy {
-        }
-
-        whenChildBuilt<NavBar>(nodeLifecycle) { commonLifecycle, child ->
-            commonLifecycle.createDestroy {
-                bind(child.output to viewEventConsumer)
-            }
+            dialogLauncher = node.integrationPoint.dialogLauncher
         }
     }
 
-
-    private val viewEventConsumer: Consumer<AppRootNavigationBar.Output> = Consumer {
-        when (it) {
-            NavBar.Output.MapButtonClicked -> backStack.push(Configuration.Content.AllSightingsMap)
-            NavBar.Output.ListButtonClicked -> backStack.push(Configuration.Content.AllSightingsList)
-            NavBar.Output.AddSightingButtonClicked -> backStack.push(Configuration.Content.NewSightingMap)
+    override fun onViewCreated(view: AllSightingsListView, viewLifecycle: Lifecycle) {
+        viewLifecycle.startStop {
+            bind(view to rib.output using ViewEventToOutput)
+            bind(dialog.rx2() to dialogEventConsumer)
         }
     }
+
 
 
 }
 
-internal class AppRootRouter(
-    buildParams: BuildParams<Nothing?>,
-    routingSource: RoutingSource<Configuration>,
-    private val builders: AppRootChildBuilders,
-    transitionHandler: TransitionHandler<Configuration>
-) : Router<Configuration>(
-    buildParams = buildParams,
-    routingSource = routingSource + RoutingSource.permanent(NavBar),
-    transitionHandler = transitionHandler
+internal object ViewEventToOutput : (Event) -> Output? {
+
+    override fun invoke(event: Event): Output? =
+        when (event) {
+            is ShowSightingDetails -> Output.ShowSightingDetails(it.id)
+            else -> null
+        }
+}
+
+
+internal class AllSightingsListFeature(
+    sightingsDatasource: SightingsDatasource,
+) : BaseFeature<Wish, Action, Effect, State, Nothing>(
+    initialState = State(),
+    bootstrapper = BootStrapperImpl(),
+    wishToAction = Action::ExecuteWish,
+    actor = ActorImpl(
+        sightingsDatasource = sightingsDatasource
+    ),
+    reducer = ReducerImpl()
 ) {
 
-    sealed class Configuration : Parcelable {
+    @Parcelize
+    data class State(
+        val isLoading: Boolean = false,
+        val sightings: list<Sighting>? = null,
+    ) : Parcelable
 
-        sealed class Permanent : Configuration() {
-            @Parcelize
-            object NavBar: Configuration()
-        }
-
-        sealed class Content : Configuration() {
-            @Parcelize
-            object NewSightingMap : Configuration()
-            @Parcelize
-            object NewSightingForm : Configuration()
-            @Parcelize
-            object AllSightingsMap : Configuration()
-            @Parcelize
-            object AllSightingsList : Configuration()
-            @Parcelize
-            data class SightingDetails(val id: String) : Configuration()
-        }
+    sealed class Wish {
     }
 
-    override fun resolve(routing: Routing<Configuration>): Resolution =
-        with(builders) {
-            when (routing.configuration) {
-                NewSightingMap -> child { newSightingMapBuilder.build(it) }
-                NewSightingForm -> child { newSightingFormBuilder.build(it) }
-                AllSightingsMap -> child { allSightingsMapBuilder.build(it) }
-                AllSightingsList -> child { allSightingsListBuilder.build(it) }
-                SightingDetails -> child { sightingDetailsBuilder.build(it) }
-                NavBar -> child { navBarBuilder.build(it) }
+    sealed class Action {
+        data class ExecuteWish(val wish: Wish) : Action()
+        object DisplaySightings : Action()
+    }
+
+    sealed class Effect {
+        object SightingRetrievalStarted : Effect()
+        data class SightingDisplayed(val id : String) : Effect()
+    }
+
+    class BootStrapperImpl : Bootstrapper<Action> {
+
+        override fun invoke(): Observable<Action> = init()
+
+        private fun init(): Observable<Action> =
+            Observable.just(DisplaySightings)
+    }
+
+    class ActorImpl(
+        private val sightingsDatasource: SightingsDatasource
+    ) : Actor<State, Action, Effect> {
+
+        override fun invoke(state: State, action: Action): Observable<out Effect> =
+            when (action) {
+                is DisplaySightings -> retrieveSightings(state = state)
             }
-        }
+
+        private fun retrieveSightings(state: State): Observable<Effect> =
+            state.sightings
+                ?.let { Observable.empty() }
+                ?: SightingsDatasource
+                    .getAllSightings() //TODO
+                    .toObservable()
+                    .map<Effect> { SightingDisplayed(id = it.id) }
+                    .startWith(SightingRetrievalStarted)
+    }
+
+    class ReducerImpl : Reducer<State, Effect> {
+
+        override fun invoke(state: State, effect: Effect): State =
+            val sightingsMutableList = mutableListOf<Sighting>()
+            when (effect) {
+                is SightingDisplayed -> state.copy(
+                    sightings = sightingsMutableList.apply { add(it) }
+                )
+            }
+    }
 }
-
-
-internal class AppRootChildBuilders( 
-    dependency: AppRoot.Dependency 
-) {
-
-    private val subtreeDependency: SubtreeDependency = SubtreeDependency(dependency)
-
-    val navBarBuilder = NavbarBuilder(subtreeDependency)
-    val newSightingMapBuilder = NewSightingMapBuilder(subtreeDependency)
-    val newSightingFormBuilder = NewSightingFormBuilder(subtreeDependency)
-    val allSightingsMapBuilder = AllSightingsMapBuilder(subtreeDependency)
-    val allSightingsListBuilder = AllSightingsListBuilder(subtreeDependency)
-    val sightingDetailsBuilder = SightingDetailsBuilder(subtreeDependency)
-
-
-    class SubtreeDependency(
-        dependency: AppRoot.Dependency,
-        override val rxNetwork: RxNetwork,
-    ) : AppRoot.Dependency by dependency,
-        NewSightingMap.Dependency,
-        NewSightingForm.Dependency,
-        AllSightingsMap.Dependency,
-        AllSightingsList.Dependency,
-        SightingDetails.Dependency
-}
-
-
