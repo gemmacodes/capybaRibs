@@ -1,4 +1,4 @@
-interface AllSightingsList : Rib, Connectable<Input, Output> {
+interface AllSightingsMap : Rib, Connectable<Input, Output> {
 
     interface Dependency {
     }
@@ -12,7 +12,7 @@ interface AllSightingsList : Rib, Connectable<Input, Output> {
 
 }
 
-interface AllSightingsListView : RibView, ObservableSource<Event> {
+interface AllSightingsMapView : RibView, ObservableSource<Event> {
 
     sealed class Event {
         data class ShowSightingDetails (val id: String) : Event()
@@ -20,38 +20,31 @@ interface AllSightingsListView : RibView, ObservableSource<Event> {
 
     sealed class ViewModel {
     data class Content(
-        val sightings: list<Sighting>,
+        val sightings: list<Sighting>
+        val zoom: Int
     ) : ViewModel()
     }
 
-    interface Factory : ViewFactory<AllSightingsListView>
+    interface Factory : ViewFactory<AllSightingsMapView>
 }
 
-class AllSightingsListViewImpl private constructor(
+class AllSightingsMapViewImpl private constructor(
     override val androidView: ViewGroup,
     private val events: PublishRelay<Event> = PublishRelay.create()
 ) : AndroidRibView(),
-    AllSightingsListView,
+    AllSightingsMapView,
     ObservableSource<Event> by events {
 
-    private val sightingsListRv: RecyclerView by lazy { findViewById(R.id.sightingsRv) }
+    private val sightingsMap: MapView by lazy { findViewById(R.id.sightingsMap) }
 
 
-    sightingsListRv.layoutManager =
-            GridLayoutManager(view.context, 2, GridLayoutManager.VERTICAL, false)
-
-    sightingsAdapter = SightingsAdapter {
-        events.accept(ShowSightingDetails(it.id))
-    }
-
-    sightingsListRv.adapter = sightingsAdapter
 
     class Factory(
         @LayoutRes private val layoutRes: Int = R.layout.rib_all_sightings_list
-    ) : AllSightingsListView.Factory {
+    ) : AllSightingsMapView.Factory {
 
-        override fun invoke(context: ViewFactory.Context): AllSightingsListView =
-            AllSightingsListViewImpl(
+        override fun invoke(context: ViewFactory.Context): AllSightingsMapView =
+            AllSightingsMapViewImpl(
                 context.inflate(layoutRes)
             )
     }
@@ -59,12 +52,49 @@ class AllSightingsListViewImpl private constructor(
     override fun accept(vm: ViewModel) {
     bind(vm)
     }
+
+    fun bind(vm: ViewModel){
+        sightingsMap.getMapboxMap().setCamera(
+        CameraOptions.Builder()
+            .zoom(vm.zoom)
+            .build()
+        )
+        sightingsMap.getMapboxMap().loadStyleUri(
+            Style.MAPBOX_STREETS
+        ) {
+            addBoarAnnotations(vm.sightings)
+        }
+    }
+
+    private fun addBoarAnnotations(sightings: list<Sighting>?) {
+        val annotationApi = mapView.annotations
+        val pointAnnotationManager = annotationApi.createPointAnnotationManager()
+        sightings { sighting ->
+            sighting.forEach {
+                val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+                    .withPoint(Point.fromLngLat(it.longitude, it.latitude))
+                    .withIconImage(
+                        bitmapFromDrawableRes(
+                            requireContext(),
+                            R.drawable.boar
+                        )!!
+                    )
+
+                pointAnnotationManager.addClickListener(onPointAnnotationClickListener)
+                pointAnnotationManager.create(pointAnnotationOptions)
+            }
+        }
+    }
+
+    open override fun addClickListener(u: OnPointAnnotationClickListener): Boolean {
+        event.accept(Event.ShowSightingDetails(u.getId()))
+    }
 }
 
-internal class AllSightingsListInteractor(
+internal class AllSightingsMapInteractor(
     buildParams: BuildParams<*>,
     private val dialog: SightingDetailsRibDialog,
-) : Interactor<AllSightingsList, AllSightingsListView>(
+) : Interactor<AllSightingsMap, AllSightingsMapView>(
     buildParams = buildParams
 ) {
 
@@ -77,7 +107,7 @@ internal class AllSightingsListInteractor(
         }
     }
 
-    override fun onViewCreated(view: AllSightingsListView, viewLifecycle: Lifecycle) {
+    override fun onViewCreated(view: AllSightingsMapView, viewLifecycle: Lifecycle) {
         viewLifecycle.startStop {
             bind(view to rib.output using ViewEventToOutput)
             bind(dialog.rx2() to dialogEventConsumer)
@@ -98,7 +128,7 @@ internal object ViewEventToOutput : (Event) -> Output? {
 }
 
 
-internal class AllSightingsListFeature(
+internal class AllSightingsMapFeature(
     sightingsDatasource: SightingsDatasource,
 ) : BaseFeature<Wish, Action, Effect, State, Nothing>(
     initialState = State(),
