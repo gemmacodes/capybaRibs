@@ -181,8 +181,8 @@ internal class AllSightingsMapFeature(
                 ?.let { Observable.empty() }
                 ?: SightingsDatasource
                     .getAllSightings() //TODO
-                    .toObservable()
                     .map<Effect> { SightingDisplayed(id = it.id) }
+                    .toObservable()
     }
 
     class ReducerImpl : Reducer<State, Effect> {

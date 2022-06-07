@@ -4,7 +4,7 @@ interface NewSightingForm : Rib, Connectable<Input, Output> {
     }
 
     sealed class Input {
-        object CoordinatesAdded : Input()
+        object CoordinatesAdded (val longitude: Int, val latitude: Int) : Input()
     }
 
     sealed class Output{
@@ -50,7 +50,7 @@ class NewSightingFormViewImpl private constructor(
                 adults = adults.text.toString().toInt(),
                 piglets = piglets.text.toString().toInt(),
                 interacting = interacting.text.toString(),
-                location = location.text.toString(),
+                location = null,
                 description = description.text.toString(),
                 photo = photo.drawable.toString()
             )))
