@@ -65,7 +65,17 @@ internal class AppRootInteractor(
         }
         whenChildBuilt<AllSightingsList>(nodeLifecycle) { commonLifecycle, child ->
             commonLifecycle.createDestroy {
-                bind(child.output to allSightingsListEventConsumer)
+                bind(child.output to allSightingsListOUtputConsumer)
+            }
+        }
+        whenChildBuilt<NewSightingMap>(nodeLifecycle) { commonLifecycle, child ->
+            commonLifecycle.createDestroy {
+                bind(child.output to newSightingMapOutputConsumer)
+            }
+        }
+         whenChildBuilt<NewSightingForm>(nodeLifecycle) { commonLifecycle, child ->
+            commonLifecycle.createDestroy {
+                bind(child.output to newSightingFormOutputConsumer)
             }
         }
     }
@@ -85,7 +95,7 @@ internal class AppRootInteractor(
         }
     }
 
-        private val allSightingsListOutputConsumer: Consumer<AllSightingsList.Output> = Consumer {
+    private val allSightingsListOutputConsumer: Consumer<AllSightingsList.Output> = Consumer {
         when (it) {
             AllSightingsList.Output.SightingSelected -> {
                 initDialog()
@@ -94,7 +104,16 @@ internal class AppRootInteractor(
         }
     }
 
-        private fun initDialog() {
+    private val allSightingsMapOutputConsumer: Consumer<AllSightingsMap.Output> = Consumer {
+        when (it) {
+            AllSightingsMap.Output.SightingSelected -> {
+                initDialog()
+                backStack.push(Configuration.Overlay.SightingDetails(it.id))
+                }
+        }
+    }
+
+    private fun initDialog() {
         dialogLauncher.show(sightingDetails) { dialogLauncher.hide(sightingDetails) }
     }
 
@@ -105,6 +124,18 @@ internal class AppRootInteractor(
                 dialogLauncher.hide(dialog)
             }
             else -> {}
+        }
+    }
+
+    private val newSightingMapOutputConsumer: Consumer<NewSightingMap.Output> = Consumer {
+        when (it) {
+            NewSightingMap.Output.LocationAdded -> backStack.push(Configuration.Content.NewSightingForm)
+        }
+    }
+
+    private val newSightingFormOutputConsumer: Consumer<NewSightingForm.Output> = Consumer {
+        when (it) {
+            NewSightingForm.Output.SightingAdded -> backStack.push(Configuration.Content.AllSightingsList)
         }
     }
 
