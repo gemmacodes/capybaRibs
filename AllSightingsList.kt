@@ -1,6 +1,7 @@
 interface AllSightingsList : Rib, Connectable<Input, Output> {
 
     interface Dependency {
+        val sightingsDatasource: SightingsDatasource
     }
 
     sealed class Input {

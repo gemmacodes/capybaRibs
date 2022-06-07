@@ -1,6 +1,7 @@
 interface NewSightingForm : Rib, Connectable<Input, Output> {
 
     interface Dependency {
+        val sightingsDatasource: SightingsDatasource
     }
 
     sealed class Input {
@@ -83,6 +84,7 @@ internal class NewSightingFormInteractor(
     override fun onCreate(nodeLifecycle: Lifecycle) {
         nodeLifecycle.createDestroy {
             bind(feature.news to rib.output using NewsToOutput)
+            bind(rib.input to feature using InputToWish)
         }
 
 
@@ -103,6 +105,14 @@ internal object ViewEventToWish : (Event) -> Wish? {
             else -> null
         }
 }
+
+internal object InputToWish : (Input) -> Wish? {
+
+    override fun invoke(news: Input): Wish? =
+        when (news) {
+            is NewSightingForm.Input.CoordinatesAdded -> Wish.CoordinatesAdded(news.longitude, news.latitude)
+}
+
 
 internal object NewsToOutput : (NewSightingFormFeature.News) -> NewSightingForm.Output? {
 
@@ -133,7 +143,8 @@ internal class NewSightingFormFeature(
     ) : Parcelable
 
     sealed class Wish {
-        data class SaveSighting(val sighting: Sighting) : Action()
+        data class AddCoordinates(val longitude: Int, val latitude: Int) : Wish()
+        data class SaveSighting(val sighting: Sighting) : Wish()
     }
 
     sealed class Action {
@@ -142,6 +153,7 @@ internal class NewSightingFormFeature(
 
     sealed class Effect {
         data class SightingSaved(val sighting: Sighting) : Effect()
+        data class CoordinatesAdded(val longitude: Int, val latitude: Int) : Effect()
     }
 
     sealed class News {
@@ -155,8 +167,10 @@ internal class NewSightingFormFeature(
 
         override fun invoke(state: State, action: Action): Observable<out Effect> =
             when (action) {
+                is AddCoordinates -> Observable.just(Effect.CoordinatesAdded(action.longitude, action.latitude))
                 is SaveSighting -> saveSighting(state = state)
             }
+
 
         private fun saveSighting(state: State): Observable<Effect> =
             state.sighting
@@ -171,17 +185,30 @@ internal class NewSightingFormFeature(
 
         override fun invoke(state: State, effect: Effect): State =
             when (effect) {
+                is CoordinatesAdded -> state.copy(
+                    sighting.longitude = effect.longitude,
+                    sighting.latitude = effect.latitude
+                )
                 is SightingSaved -> state.copy(
-                    sighting = effect.sighting
+                    sighting.copy(
+                        id = effect.sighting.id,
+                        title = effect.sighting.title,
+                        adults = effect.sighting.adults,
+                        piglets = effect.sighting.piglets,
+                        interacting = effect.sighting.interacting,
+                        description = effect.sighting.description,
+                        photo = effect.sighting.photo
+                    )
                 )
             }
     }
 
-        class NewsPublisherImpl : NewsPublisher<Wish, Effect, State, News> {
+    class NewsPublisherImpl : NewsPublisher<Wish, Effect, State, News> {
         override fun invoke(wish: Wish, effect: Effect, state: State): News? =
             when (effect) {
                 is Effect.SightingSaved -> News.SightingAdded
                 else -> null
             }
     }
+
 }

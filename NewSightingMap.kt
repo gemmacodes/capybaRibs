@@ -72,6 +72,7 @@ internal class NewSightingMapInteractor(
         viewLifecycle.startStop {
             bind(feature to view using StateToViewModel)
             bind(view to feature using ViewEventToWish)
+            bind(feature.news to NewSightingForm.input using NewsToNewSightingFormInput)
         }
     }
 
@@ -81,20 +82,29 @@ internal object ViewEventToWish : (Event) -> Wish? {
 
     override fun invoke(event: Event): Output? =
         when (event) {
-            is SaveLocation -> Wish.SaveLocation(it.latitude, it.longitude)
+            is Event.SaveLocation -> Wish.SaveLocation(it.latitude, it.longitude)
             else -> null
         }
 }
 
+internal object NewsToNewSightingFormInput : (News) -> Input? {
+
+    override fun invoke(news: News): Input? = when (news) {
+        News.LocationSaved -> Input.CoordinatesAdded(news.latitude, news.longitude)
+        else -> null
+    }
+}
 
 
-internal class NewSightingMapFeature() : BaseFeature<Wish, Action, Effect, State, Nothing>(
+
+internal class NewSightingMapFeature() : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
     wishToAction = Action::ExecuteWish,
     actor = ActorImpl(
         sightingsDatasource = sightingsDatasource
     ),
     reducer = ReducerImpl(),
+    newsPublisher = NewsPublisherImpl(),
 ) {
 
     @Parcelize
@@ -116,7 +126,7 @@ internal class NewSightingMapFeature() : BaseFeature<Wish, Action, Effect, State
     }
 
     sealed class News {
-        data class SightingAdded(val longitude: Int, val latitude: Int) : News()
+        data class LocationSaved(val longitude: Int, val latitude: Int) : News()
     }
 
 
@@ -139,6 +149,14 @@ internal class NewSightingMapFeature() : BaseFeature<Wish, Action, Effect, State
                     longitude = effect.longitude,
                     latitude = effect.latitude
                 )
+            }
+    }
+
+    class NewsPublisherImpl : NewsPublisher<Wish, Effect, State, News> {
+        override fun invoke(wish: Wish, effect: Effect, state: State): News? =
+            when (effect) {
+                is Effect.LocationSaved -> News.LocationSaved(effect.longitude, effect.latitude)
+                else -> null
             }
     }
 
