@@ -18,6 +18,12 @@ interface AllSightingsListView : RibView, ObservableSource<Event> {
         data class ShowSightingDetails (val id: String) : Event()
     }
 
+    sealed class ViewModel {
+    data class Content(
+        val sightings: list<Sighting>,
+    ) : ViewModel()
+    }
+
     interface Factory : ViewFactory<AllSightingsListView>
 }
 
@@ -48,6 +54,10 @@ class AllSightingsListViewImpl private constructor(
             AllSightingsListViewImpl(
                 context.inflate(layoutRes)
             )
+    }
+
+    override fun accept(vm: ViewModel) {
+    bind(vm)
     }
 }
 
