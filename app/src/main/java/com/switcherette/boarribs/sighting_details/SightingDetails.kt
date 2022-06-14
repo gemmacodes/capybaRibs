@@ -15,7 +15,7 @@ interface SightingDetails : Rib, Connectable<Input, Output> {
         val sightingsDataSource: SightingsDataSource
     }
 
-    data class Params(
+    data class BuildParams(
         val sightingId: String
     )
 

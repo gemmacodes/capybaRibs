@@ -10,12 +10,11 @@ import com.switcherette.boarribs.sighting_details.feature.SightingDetailsFeature
 import com.switcherette.boarribs.sighting_details.mapper.StateToViewModel
 
 internal class SightingDetailsInteractor(
-    buildParams: BuildParams<SightingDetails.Params>,
+    buildParams: BuildParams<SightingDetails.BuildParams>,
     private val feature: SightingDetailsFeature
 ) : Interactor<SightingDetails, SightingDetailsView>(
     buildParams = buildParams
 ) {
-    val sightingId = buildParams.payload.sightingId
 
     override fun onCreate(nodeLifecycle: Lifecycle) {
         nodeLifecycle.createDestroy {

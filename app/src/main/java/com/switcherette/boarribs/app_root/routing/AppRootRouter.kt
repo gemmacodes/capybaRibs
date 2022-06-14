@@ -57,7 +57,7 @@ class AppRootRouter internal constructor(
         with(builders) {
             when (val configuration = routing.configuration) {
                 is Content.NewSightingMap -> child { newSightingMapBuilder.build(it) }
-                is Content.NewSightingForm -> child { newSightingFormBuilder.build(it, NewSightingForm.Params(configuration.longitude, configuration.latitude)) }
+                is Content.NewSightingForm -> child { newSightingFormBuilder.build(it, NewSightingForm.BuildParams(configuration.longitude, configuration.latitude)) }
                 is Content.AllSightingsMap -> child { allSightingsMapBuilder.build(it) }
                 is Content.AllSightingsList -> child { allSightingsListBuilder.build(it) }
                 is NavBar -> child { navBarBuilder.build(it) }

@@ -14,7 +14,7 @@ interface NewSightingForm : Rib, Connectable<Input, Output> {
         val sightingsDataSource: SightingsDataSource
     }
 
-    data class Params(
+    data class BuildParams(
         val latitude: Double,
         val longitude: Double
     )

@@ -8,9 +8,9 @@ import com.switcherette.boarribs.new_sighting_form.feature.NewSightingFormFeatur
 
 class NewSightingFormBuilder(
     private val dependency: NewSightingForm.Dependency
-) : Builder<NewSightingForm.Params, NewSightingForm>() {
+) : Builder<NewSightingForm.BuildParams, NewSightingForm>() {
 
-    override fun build(buildParams: BuildParams<NewSightingForm.Params>): NewSightingForm {
+    override fun build(buildParams: BuildParams<NewSightingForm.BuildParams>): NewSightingForm {
         val latitude = buildParams.payload.latitude
         val longitude = buildParams.payload.longitude
         val customisation = buildParams.getOrDefault(NewSightingForm.Customisation())
@@ -36,7 +36,7 @@ class NewSightingFormBuilder(
     )
 
     private fun node(
-        buildParams: BuildParams<NewSightingForm.Params>,
+        buildParams: BuildParams<NewSightingForm.BuildParams>,
         customisation: NewSightingForm.Customisation,
         feature: NewSightingFormFeature,
         interactor: NewSightingFormInteractor

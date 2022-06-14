@@ -8,9 +8,9 @@ import com.switcherette.boarribs.sighting_details.feature.SightingDetailsFeature
 
 class SightingDetailsBuilder(
     private val dependency: SightingDetails.Dependency
-) : Builder<SightingDetails.Params, SightingDetails>() {
+) : Builder<SightingDetails.BuildParams, SightingDetails>() {
 
-    override fun build(buildParams: BuildParams<SightingDetails.Params>): SightingDetails {
+    override fun build(buildParams: BuildParams<SightingDetails.BuildParams>): SightingDetails {
         val sightingId = buildParams.payload.sightingId
         val customisation = buildParams.getOrDefault(SightingDetails.Customisation())
         val feature = feature(dependency.sightingsDataSource, sightingId)
@@ -27,7 +27,7 @@ class SightingDetailsBuilder(
         sightingId = sightingId)
 
     private fun interactor(
-        buildParams: BuildParams<SightingDetails.Params>,
+        buildParams: BuildParams<SightingDetails.BuildParams>,
         feature: SightingDetailsFeature
     ) = SightingDetailsInteractor(
         buildParams = buildParams,
@@ -35,7 +35,7 @@ class SightingDetailsBuilder(
     )
 
     private fun node(
-        buildParams: BuildParams<SightingDetails.Params>,
+        buildParams: BuildParams<SightingDetails.BuildParams>,
         customisation: SightingDetails.Customisation,
         interactor: SightingDetailsInteractor,
         feature: SightingDetailsFeature
