@@ -8,6 +8,7 @@ import com.badoo.ribs.core.view.RibView
 import com.badoo.ribs.core.view.ViewFactory
 import com.jakewharton.rxrelay2.PublishRelay
 import com.switcherette.boarribs.R
+import com.switcherette.boarribs.databinding.RibNewSightingFormBinding
 import com.switcherette.boarribs.new_sighting_form.NewSightingFormView.Event
 import com.switcherette.boarribs.new_sighting_form.NewSightingFormView.ViewModel
 import io.reactivex.ObservableSource
@@ -61,6 +62,18 @@ class NewSightingFormViewImpl private constructor(
             )
     }
 
+    val binding: RibNewSightingFormBinding = RibNewSightingFormBinding.bind(androidView)
+
     override fun accept(vm: ViewModel) {
+        with(binding){
+            val heading = etHeading.text.toString().trim()
+            val adults = etNumAdults.text.toString()
+            val piglets = etNumPiglets.text.toString()
+            val interaction = btnSEnvironment.isChecked
+            var comments = etComment.text.toString().trim()
+            if (comments.isEmpty()) {
+                comments = "no description provided"
+            }
+        }
     }
 }
