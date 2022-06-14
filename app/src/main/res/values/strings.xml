@@ -2,4 +2,9 @@
     <string name="app_name">BoarRIBs</string>
     <string name="mapbox_access_token">sk.eyJ1Ijoic3dpdGNoZXJldHRlIiwiYSI6ImNsMGF0dHJveDAzZ3kzam83YWpseXVvZmgifQ.PvI7WWi6rg50TeVXypcjrw</string>
     <string name="sighting_details">Sighting details</string>
+    <string name="no_comments">No description provided</string>
+    <string name="add_photo">Add photo</string>
+    <string name="take_photo">Take photo</string>
+    <string name="choose_gallery">Choose from gallery</string>
+    <string name="cancel_photo">Cancel</string>
 </resources>
