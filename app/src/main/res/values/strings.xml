@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">BoarRIBs</string>
+    <string name="mapbox_access_token">sk.eyJ1Ijoic3dpdGNoZXJldHRlIiwiYSI6ImNsMGF0dHJveDAzZ3kzam83YWpseXVvZmgifQ.PvI7WWi6rg50TeVXypcjrw</string>
+    <string name="sighting_details">Sighting details</string>
+</resources>

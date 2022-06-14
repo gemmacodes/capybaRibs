@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rib_new_sighting_map"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_drag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/pale_pink"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="5dp"
+        android:text="First, drag the boar to the sighting"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.mapbox.maps.MapView
+        android:id="@+id/mapAdd"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        mapbox:layout_constraintBottom_toBottomOf="parent"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintStart_toStartOf="parent"
+        mapbox:layout_constraintTop_toBottomOf="@id/tv_drag"
+        mapbox:mapbox_cameraTargetLat="41.409428"
+        mapbox:mapbox_cameraTargetLng="2.111255"
+        mapbox:mapbox_locationComponentEnabled="true" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/btnGeoLoc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:src="@android:drawable/ic_menu_mylocation"
+        mapbox:layout_constraintEnd_toEndOf="parent"
+        mapbox:layout_constraintTop_toBottomOf="@id/tv_drag" />
+    <!--
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clAddMap"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#B3BCAAA4" />
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/cardAnimation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/shapesfloating" />
+
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/ivLoading"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/dancingboar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+            -->
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_addMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_baseline_check" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
