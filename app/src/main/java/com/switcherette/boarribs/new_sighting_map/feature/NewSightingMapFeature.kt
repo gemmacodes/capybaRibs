@@ -1,125 +1,158 @@
 package com.switcherette.boarribs.new_sighting_map.feature
 
+import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
-import com.badoo.mvicore.element.Actor
-import com.badoo.mvicore.element.Bootstrapper
-import com.badoo.mvicore.element.NewsPublisher
-import com.badoo.mvicore.element.Reducer
-import com.badoo.mvicore.feature.ActorReducerFeature
-import com.google.android.gms.location.LocationServices
+import android.util.Log
+import com.badoo.mvicore.element.*
+import com.badoo.mvicore.feature.BaseFeature
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.new_sighting_map.feature.NewSightingMapFeature.*
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Observable.empty
+import io.reactivex.Observable.just
 
-internal class NewSightingMapFeature : ActorReducerFeature<Wish, Effect, State, News>(
-    initialState = State(content = State.Content.BoarCoordinates(2.111255, 41.409428)),
+internal class NewSightingMapFeature(
+    locationProviderClient: FusedLocationProviderClient,
+) : BaseFeature<Wish, Action, Effect, State, News>(
+    initialState = State(),
+    wishToAction = Action::ExecuteWish,
     bootstrapper = BootStrapperImpl(),
-    actor = ActorImpl(),
+    actor = ActorImpl(locationProviderClient),
     reducer = ReducerImpl(),
-    newsPublisher = NewsPublisherImpl()
+    newsPublisher = NewsPublisherImpl(),
+    postProcessor = PostProcessorImpl()
 ) {
 
     data class State(
-        val content: Content,
+        val boarLocation: Coordinates = Coordinates(41.409428,2.111255),
+        val locationPermissionStatus: LocationPermissionStatus? = null,
+        val boarLocationStatus: BoarLocationStatus = BoarLocationStatus.ONGOING,
     ) {
-        sealed class Content {
-            data class BoarCoordinates(val longitude: Double, val latitude: Double) : Content()
-            object GeolocationError : Content()
-        }
+        enum class LocationPermissionStatus { GRANTED, DENIED }
+        enum class BoarLocationStatus { ONGOING, SAVED }
     }
 
     sealed class Wish {
-        object StartGeolocation : Wish()
-        data class SetPointerLocation(val longitude: Double, val latitude: Double) : Wish()
-        data class SaveLocation(val longitude: Double, val latitude: Double) : Wish()
+        data class UpdatePermissions(val granted: List<String>) : Wish()
+        object FindMyLocation : Wish()
+        data class UpdateBoarLocation(val coordinates: Coordinates) : Wish()
+        object SaveLocation : Wish()
+    }
+
+    sealed class Action {
+        data class ExecuteWish(val wish: Wish) : Action()
     }
 
     sealed class Effect {
-        data class Geolocated(val longitude: Double, val latitude: Double) : Effect()
-        data class PointerLocationSet(val longitude: Double, val latitude: Double) : Effect()
-        data class LocationSaved(val longitude: Double, val latitude: Double) : Effect()
-        object GeolocationFailed : Effect()
+        data class PermissionsUpdated(val status: State.LocationPermissionStatus) : Effect()
+        object PermissionsNotGranted : Effect()
+        data class BoarLocationUpdated(val coordinates: Coordinates) : Effect()
+        data class LocationSaved(val coordinates: Coordinates) : Effect()
+
     }
 
     sealed class News {
-        data class LocationSaved(val longitude: Double, val latitude: Double) : News()
+        data class LocationSaved(val coordinates: Coordinates) : News()
+        data class PermissionRequired(val permissions: List<String>) : News()
     }
 
-    class BootStrapperImpl : Bootstrapper<Wish> {
-        override fun invoke(): Observable<Wish> =
+    class BootStrapperImpl : Bootstrapper<Action> {
+        override fun invoke(): Observable<Action> =
             empty()
     }
 
-    class ActorImpl : Actor<State, Wish, Effect> {
-        override fun invoke(state: State, wish: Wish): Observable<Effect> =
-            when (wish) {
-                Wish.StartGeolocation -> getGeolocation()
-                is Wish.SaveLocation -> Observable.just(
-                    Effect.LocationSaved(
-                        wish.longitude,
-                        wish.latitude
-                    )
-                )
-                is Wish.SetPointerLocation -> Observable.just(
-                    Effect.PointerLocationSet(
-                        wish.longitude,
-                        wish.latitude
-                    )
-                )
+    class ActorImpl(
+        private val locationProviderClient: FusedLocationProviderClient,
+    ) : Actor<State, Action, Effect> {
+        override fun invoke(state: State, action: Action): Observable<Effect> =
+            when (action) {
+                is Action.ExecuteWish -> when (action.wish) {
+                    is Wish.UpdatePermissions -> handlePermissionResult(action.wish.granted)
+                    is Wish.FindMyLocation -> getGeolocation(state).also {
+                        Log.d("ANNDRESSA",it.toString())
+                    }
+                    is Wish.SaveLocation -> just(Effect.LocationSaved(state.boarLocation!!))
+                    is Wish.UpdateBoarLocation -> just(Effect.BoarLocationUpdated(action.wish.coordinates))
+                }
+            }
+
+        private fun handlePermissionResult(
+            permissionsGranted: List<String>,
+        ): Observable<Effect> =
+            if (permissionsGranted.containsAll(LOCATION_PERMISSIONS)) {
+                State.LocationPermissionStatus.GRANTED
+            } else {
+                State.LocationPermissionStatus.DENIED
+            }.let { status ->
+                just(Effect.PermissionsUpdated(status))
             }
 
         @SuppressLint("MissingPermission")
-        fun getGeolocation(): Observable<Effect> {
-            val fusedLocationClient =
-                LocationServices.getFusedLocationProviderClient(Activity())
-            return if (fusedLocationClient.lastLocation.isSuccessful) {
-                Observable.just(
-                    Effect.Geolocated(
-                        fusedLocationClient.lastLocation.result.longitude,
-                        fusedLocationClient.lastLocation.result.latitude
-                    )
-                )
-            } else Observable.just(Effect.GeolocationFailed)
-
+        fun getGeolocation(state: State): Observable<Effect> {
+            return if(state.locationPermissionStatus != State.LocationPermissionStatus.GRANTED){
+                just(Effect.PermissionsNotGranted)
+            } else{
+                Observable.fromPublisher {
+                    locationProviderClient.lastLocation.addOnCompleteListener { result ->
+                        if(result.isSuccessful) {
+                            it.onNext(
+                                Effect.BoarLocationUpdated(
+                                Coordinates(
+                                    result.result.latitude,
+                                    result.result.longitude,
+                                )
+                            ))
+                        }
+                        it.onComplete()
+                    }
+                }
+            }
         }
+
     }
 
     class ReducerImpl : Reducer<State, Effect> {
+
         override fun invoke(state: State, effect: Effect): State =
             when (effect) {
-                is Effect.Geolocated -> state.copy(
-                    content = State.Content.BoarCoordinates(
-                        effect.longitude,
-                        effect.latitude
-                    )
-                )
-                is Effect.GeolocationFailed -> state.copy(content = State.Content.GeolocationError)
-                is Effect.PointerLocationSet -> state.copy(
-                    content = State.Content.BoarCoordinates(
-                        effect.longitude,
-                        effect.latitude
-                    )
-                )
+                is Effect.PermissionsUpdated -> state.copy(locationPermissionStatus = effect.status)
+                is Effect.PermissionsNotGranted -> state
+                is Effect.BoarLocationUpdated -> state.copy(boarLocation = effect.coordinates)
                 is Effect.LocationSaved -> state.copy(
-                    content = State.Content.BoarCoordinates(
-                        effect.longitude,
-                        effect.latitude
-                    )
+                    boarLocation = effect.coordinates,
+                    boarLocationStatus = State.BoarLocationStatus.SAVED
                 )
             }
-
     }
 
-    class NewsPublisherImpl : NewsPublisher<Wish, Effect, State, News> {
-        override fun invoke(wish: Wish, effect: Effect, state: State): News? =
+    class NewsPublisherImpl : NewsPublisher<Action, Effect, State, News> {
+        override fun invoke(action:Action, effect: Effect, state: State): News? =
             when (effect) {
-                is Effect.LocationSaved -> News.LocationSaved(effect.longitude, effect.latitude)
+                is Effect.LocationSaved -> News.LocationSaved(effect.coordinates)
+                is Effect.PermissionsNotGranted -> News.PermissionRequired(
+                    LOCATION_PERMISSIONS)
                 else -> null
             }
 
     }
 
+    class PostProcessorImpl : PostProcessor<Action, Effect, State> {
+        override fun invoke(action: Action, effect: Effect, state: State): Action? =
+            when(effect){
+                is Effect.PermissionsUpdated -> Action.ExecuteWish(Wish.FindMyLocation)
+                else -> null
+            }
+    }
+
+    companion object {
+        private val LOCATION_PERMISSIONS = listOf(Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
 }
+
+
 
 

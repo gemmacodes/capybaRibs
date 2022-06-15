@@ -24,15 +24,20 @@ internal class AllSightingsListFeature(
 
     data class State(
         val content: Content,
+        //val page: Int,
+        //val isLastPage: Boolean
     ) {
         sealed class Content {
             object SightingsLoading : Content()
             data class SightingsLoaded(val sightings: List<Sighting>) : Content()
             object SightingLoadingError : Content()
+            object EmptySightingRecords : Content()
         }
     }
 
     sealed class Wish {
+        object RetryLoadingSightings : Wish()
+        object LoadNextPage : Wish()
     }
 
     sealed class Action {

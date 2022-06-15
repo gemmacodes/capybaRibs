@@ -7,6 +7,7 @@ import com.badoo.binder.using
 import com.badoo.mvicore.android.lifecycle.createDestroy
 import com.badoo.mvicore.android.lifecycle.startStop
 import com.badoo.ribs.android.permissionrequester.PermissionRequester
+import com.badoo.ribs.android.permissionrequester.PermissionRequester.RequestPermissionsEvent.RequestPermissionsResult
 import com.badoo.ribs.android.subscribe
 import com.badoo.ribs.clienthelper.interactor.Interactor
 import com.badoo.ribs.core.modality.BuildParams
@@ -25,12 +26,12 @@ internal class NewSightingMapInteractor(
     buildParams = buildParams
 ) {
 
-    private var view: NewSightingMapView? = null
     private var cancellable: Cancellable? = null
 
     override fun onCreate(nodeLifecycle: Lifecycle) {
         nodeLifecycle.createDestroy {
             bind(feature.news to rib.output using NewsToOutput)
+            bind( feature.news to featureNewsConsumer())
         }
     }
 
@@ -38,81 +39,54 @@ internal class NewSightingMapInteractor(
         viewLifecycle.startStop {
             bind(feature to view using StateToViewModel)
             bind(view to feature using ViewEventToWish)
-            bind(view to viewEventConsumer())
         }
         viewLifecycle.subscribe(
-            onCreate = { handleOnCreate(view) },
+            onCreate = { handleOnCreate() },
             onDestroy = { handleOnDestroy() }
         )
     }
 
-    private fun viewEventConsumer(): Consumer<NewSightingMapView.Event> = Consumer {
+    private fun featureNewsConsumer(): Consumer<NewSightingMapFeature.News> = Consumer {
         when (it) {
-            NewSightingMapView.Event.GetGeolocation -> requestPermissions()
+            is NewSightingMapFeature.News.PermissionRequired -> requestPermissions(it.permissions)
             else -> {}
         }
     }
 
-    private fun handleOnCreate(view: NewSightingMapView) {
-        checkPermissions()
-        this.view = view
+    private fun handleOnCreate() {
         cancellable = permissionRequester
             .events(this)
             .observe { event ->
-                if (event.requestCode == REQUEST_GEOLOCATION) {
-                    when (event) {
-                        is PermissionRequester.RequestPermissionsEvent.RequestPermissionsResult -> Toast.makeText(
-                            view.context,
-                            "Permission requested",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        is PermissionRequester.RequestPermissionsEvent.Cancelled -> Toast.makeText(
-                            view.context,
-                            "Permission request cancelled",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        else -> Unit
-                    }
+                if (event.requestCode == REQUEST_GEOLOCATION && event is RequestPermissionsResult) {
+                    feature.accept(NewSightingMapFeature.Wish.UpdatePermissions(event.granted))
                 }
             }
+        feature.accept(NewSightingMapFeature.Wish.FindMyLocation)
     }
 
     private fun handleOnDestroy() {
-        this.view = null
         cancellable?.cancel()
     }
 
-    private fun requestPermissions() {
-        permissionRequester.requestPermissions(
-            client = this,
-            requestCode = REQUEST_GEOLOCATION,
-            permissions = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
-        )
-    }
-
-    private fun checkPermissions() {
+    private fun requestPermissions(permissions:List<String>) {
         val result = permissionRequester.checkPermissions(
             client = this,
-            permissions = arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
+            permissions = permissions.toTypedArray()
         )
-        if (!result.allGranted) requestPermissions()
-        else {
-            feature.accept(NewSightingMapFeature.Wish.StartGeolocation)
-            Toast.makeText(
-                view?.context,
-                "Geolocation permissions already granted",
-                Toast.LENGTH_SHORT
-            ).show()
+        if (result.allGranted){
+            feature.accept(NewSightingMapFeature.Wish.UpdatePermissions(result.granted))
+        } else {
+            permissionRequester.requestPermissions(
+                client = this,
+                requestCode = REQUEST_GEOLOCATION,
+                permissions = permissions.toTypedArray()
+            )
         }
     }
-
-    override val requestCodeClientId: String
-        get() = this.toString()
 
     companion object {
         private const val REQUEST_GEOLOCATION = 1
     }
-
 
 }
 

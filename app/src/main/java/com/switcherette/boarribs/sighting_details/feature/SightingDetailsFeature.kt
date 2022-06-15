@@ -32,7 +32,7 @@ internal class SightingDetailsFeature(
     }
 
     sealed class Wish {
-
+        object RetrySightingLoading : Wish()
     }
 
     sealed class Action {

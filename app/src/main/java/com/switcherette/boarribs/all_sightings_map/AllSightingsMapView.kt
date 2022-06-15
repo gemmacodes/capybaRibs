@@ -15,8 +15,6 @@ import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.switcherette.boarribs.R
-import com.switcherette.boarribs.all_sightings_list.AllSightingsListView
-import com.switcherette.boarribs.all_sightings_list.AllSightingsListViewImpl
 import com.switcherette.boarribs.all_sightings_map.AllSightingsMapView.Event
 import com.switcherette.boarribs.all_sightings_map.AllSightingsMapView.ViewModel
 import com.switcherette.boarribs.data.Sighting
@@ -43,7 +41,7 @@ interface AllSightingsMapView : RibView,
 
 class AllSightingsMapViewImpl private constructor(
     override val androidView: ViewGroup,
-    private val events: PublishRelay<Event> = PublishRelay.create()
+    private val events: PublishRelay<Event> = PublishRelay.create(),
 ) : AndroidRibView(),
     AllSightingsMapView,
     ObservableSource<Event> by events,
@@ -78,23 +76,30 @@ class AllSightingsMapViewImpl private constructor(
         val pointAnnotationManager = annotationApi.createPointAnnotationManager()
         sightings?.map { sighting ->
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
-                .withPoint(Point.fromLngLat(sighting.longitude, sighting.latitude))
+                .withPoint(Point.fromLngLat(sighting.coordinates.longitude, sighting.coordinates.latitude))
                 .withIconImage(
                     bitmapFromDrawableRes(
                         context,
                         R.drawable.boar
                     )!!
                 )
+            pointAnnotationManager.addClickListener{
+                run { events.accept(Event.LoadSightingDetails(sighting.id)) }
+                true
+            }
             pointAnnotationManager.create(pointAnnotationOptions)
         }
     }
 
-//    fun addClickListener(u: OnPointAnnotationClickListener): Boolean {
-//        event.accept(Event.ShowSightingDetails(u.getId()))
-//    }
+
+//    private fun addMapBounds(sightings: List<Sighting>?){
+//        val coords = sightings?.map { sighting -> sighting.coordinates }
+//        val bounds = sightingsMap.getMapboxMap().coordinateBoundsForCamera(x)
+
+
 
     class Factory(
-        @LayoutRes private val layoutRes: Int = R.layout.rib_all_sightings_map
+        @LayoutRes private val layoutRes: Int = R.layout.rib_all_sightings_map,
     ) : AllSightingsMapView.Factory {
         override fun invoke(context: ViewFactory.Context): AllSightingsMapView =
             AllSightingsMapViewImpl(

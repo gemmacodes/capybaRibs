@@ -8,7 +8,6 @@ internal object NewsToOutput : (NewSightingFormFeature.News) -> Output? {
 
     override fun invoke(news: NewSightingFormFeature.News): Output? =
         when (news) {
-            NewSightingFormFeature.News.SightingNotSaved -> null
             NewSightingFormFeature.News.SightingSaved -> Output.SightingAdded
         }
 }

@@ -1,7 +1,6 @@
 package com.switcherette.boarribs.new_sighting_map
 
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.appcompat.content.res.AppCompatResources
 import com.badoo.ribs.core.customisation.inflate
@@ -16,16 +15,13 @@ import com.mapbox.maps.Style
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.annotation.Annotation
-import com.mapbox.maps.plugin.annotation.AnnotationPlugin
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.*
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.gestures
-import com.mapbox.maps.plugin.locationcomponent.OnIndicatorBearingChangedListener
-import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.switcherette.boarribs.R
-import com.switcherette.boarribs.data.Sighting
+import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.databinding.RibNewSightingMapBinding
 import com.switcherette.boarribs.new_sighting_map.NewSightingMapView.Event
 import com.switcherette.boarribs.new_sighting_map.NewSightingMapView.ViewModel
@@ -38,17 +34,14 @@ interface NewSightingMapView : RibView,
     Consumer<ViewModel> {
 
     sealed class Event {
-        object GetGeolocation : Event()
-        data class SetPointerLocation(val longitude: Double, val latitude: Double) : Event()
-        data class SaveLocation(val longitude: Double, val latitude: Double) : Event()
+        object FindMyLocation : Event()
+        data class UpdateLocation(val longitude: Double, val latitude: Double) : Event()
+        object SaveLocation : Event()
     }
 
-    sealed class ViewModel {
-        data class Content(
-            val longitude: Double,
-            val latitude: Double
-        ) : ViewModel()
-    }
+    data class ViewModel(
+        val boarCoordinates: Coordinates,
+    )
 
     fun interface Factory : ViewFactory<NewSightingMapView>
 }
@@ -56,7 +49,7 @@ interface NewSightingMapView : RibView,
 
 class NewSightingMapViewImpl private constructor(
     override val androidView: ViewGroup,
-    private val events: PublishRelay<Event> = PublishRelay.create()
+    private val events: PublishRelay<Event> = PublishRelay.create(),
 ) : AndroidRibView(),
     NewSightingMapView,
     ObservableSource<Event> by events,
@@ -64,8 +57,11 @@ class NewSightingMapViewImpl private constructor(
 
     private val binding: RibNewSightingMapBinding = RibNewSightingMapBinding.bind(androidView)
 
+    private var boarAnnotation: PointAnnotation? = null
+    private var pointAnnotationManager: PointAnnotationManager
+
     class Factory(
-        @LayoutRes private val layoutRes: Int = R.layout.rib_new_sighting_map
+        @LayoutRes private val layoutRes: Int = R.layout.rib_new_sighting_map,
     ) : NewSightingMapView.Factory {
         override fun invoke(context: ViewFactory.Context): NewSightingMapView =
             NewSightingMapViewImpl(
@@ -73,59 +69,63 @@ class NewSightingMapViewImpl private constructor(
             )
     }
 
+    init {
+        with(binding) {
+            fabAddMap.setOnClickListener {
+                events.accept(Event.SaveLocation)
+            }
+            btnGeoLoc.setOnClickListener {
+                events.accept(Event.FindMyLocation)
+            }
+            mapAdd.getMapboxMap().loadStyleUri(
+                Style.MAPBOX_STREETS
+            ) {
+                initLocationComponent()
+                mapAdd.gestures.addOnMoveListener(onMoveListener)
+            }
+            pointAnnotationManager = binding.mapAdd.annotations.createPointAnnotationManager()
+        }
+    }
 
     override fun accept(vm: ViewModel) {
-        when (vm) {
-            is ViewModel.Content -> {
-                val longitude = vm.longitude
-                val latitude = vm.latitude
-                with(binding) {
-                    fabAddMap.setOnClickListener {
-                        events.accept(Event.SaveLocation(longitude, latitude))
-                    }
-                    btnGeoLoc.setOnClickListener {
-                        events.accept(Event.GetGeolocation) }
-                    mapAdd.getMapboxMap().setCamera(
-                        CameraOptions.Builder()
-                            .zoom(14.0)
-                            .center(Point.fromLngLat(longitude, latitude))
-                            .build()
-                    )
-                    mapAdd.getMapboxMap().loadStyleUri(
-                        Style.MAPBOX_STREETS
-                    ) {
-                        initLocationComponent()
-                        setupGesturesListener()
-                        addAnnotationToMap(binding.mapAdd.annotations, vm)
-                    }
-                }
-            }
+        with(binding) {
+            mapAdd.getMapboxMap().setCamera(
+                CameraOptions.Builder()
+                    .zoom(14.0)
+                    .center(Point.fromLngLat(vm.boarCoordinates.longitude,
+                        vm.boarCoordinates.latitude))
+                    .build()
+            )
+
+            updateBoarLocation(vm.boarCoordinates)
         }
     }
 
-    private fun addAnnotationToMap(annotationApi: AnnotationPlugin, vm: ViewModel.Content) {
-        bitmapFromDrawableRes(
-            context,
-            R.drawable.boar
-        )?.let {
+    private fun updateBoarLocation(coordinates: Coordinates) {
+        val boarAnnotation = boarAnnotation ?: createBoarAnnotation(coordinates)
+        boarAnnotation.point = Point.fromLngLat(coordinates.longitude, coordinates.latitude)
+        pointAnnotationManager.update(boarAnnotation)
+    }
+
+    private fun createBoarAnnotation(coordinates: Coordinates): PointAnnotation =
+        bitmapFromDrawableRes(context, R.drawable.boar)!!.let {
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
-                .withPoint(Point.fromLngLat(vm.longitude, vm.latitude))
-                // Point.fromLngLat(2.111255, 41.409428)
+                .withPoint(Point.fromLngLat(coordinates.longitude, coordinates.latitude))
                 .withIconImage(it)
+                .withIconSize(0.5)
                 .withDraggable(true)
 
-            val boarPointAnnotationManager = annotationApi.createPointAnnotationManager()
-            boarPointAnnotationManager.addDragListener(dragListener)
-            boarPointAnnotationManager.create(pointAnnotationOptions)
-        }
-    }
+            pointAnnotationManager.addDragListener(dragListener)
+            pointAnnotationManager.create(pointAnnotationOptions)
+        }.also { boarAnnotation = it }
+
 
     private val dragListener = object : OnPointAnnotationDragListener {
         override fun onAnnotationDrag(annotation: Annotation<*>) {}
         override fun onAnnotationDragStarted(annotation: Annotation<*>) {}
         override fun onAnnotationDragFinished(annotation: Annotation<*>) {
             events.accept(
-                Event.SetPointerLocation(
+                Event.UpdateLocation(
                     (annotation as PointAnnotation).point.longitude(),
                     annotation.point.latitude()
                 )
@@ -162,49 +162,6 @@ class NewSightingMapViewImpl private constructor(
                 }.toJson()
             )
         }
-        // Pass the user's location to camera
-        locationComponentPlugin.addOnIndicatorPositionChangedListener(
-            onIndicatorPositionChangedListener
-        )
-    }
-
-    private fun setupGesturesListener() {
-        binding.mapAdd.gestures.addOnMoveListener(onMoveListener)
-        binding.mapAdd.gestures.addOnMapClickListener { point ->
-            binding.mapAdd.location
-                .isLocatedAt(point) { isPuckLocatedAtPoint ->
-                    if (isPuckLocatedAtPoint) {
-                        Toast.makeText(
-                            context,
-                            "Clicked on location puck ${binding.mapAdd.location}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            true
-        }
-        binding.mapAdd.gestures.addOnMapLongClickListener { point ->
-            binding.mapAdd.location
-                .isLocatedAt(point) { isPuckLocatedAtPoint ->
-                    if (isPuckLocatedAtPoint) {
-                        Toast.makeText(
-                            context,
-                            "Long-clicked on location puck ${binding.mapAdd.location}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-            true
-        }
-    }
-
-    // CAMERA TRACKING
-    private val onIndicatorPositionChangedListener = OnIndicatorPositionChangedListener {
-        // Jump to the current indicator position
-        binding.mapAdd.getMapboxMap().setCamera(CameraOptions.Builder().center(it).build())
-        // Set the gestures plugin's focal point to the current indicator location.
-        binding.mapAdd.gestures.focalPoint = binding.mapAdd.getMapboxMap().pixelForCoordinate(it)
-        events.accept(Event.SetPointerLocation(it.longitude(), it.latitude()))
     }
 
     private val onMoveListener = object : OnMoveListener {
@@ -218,8 +175,6 @@ class NewSightingMapViewImpl private constructor(
     }
 
     private fun onCameraTrackingDismissed() {
-        binding.mapAdd.location
-            .removeOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
         binding.mapAdd.gestures.removeOnMoveListener(onMoveListener)
     }
 

@@ -14,6 +14,7 @@ import com.switcherette.boarribs.sighting_details.dialog.SightingDetailsRibDialo
 import com.switcherette.boarribs.app_root.routing.AppRootRouter.Configuration
 import com.switcherette.boarribs.app_root.routing.AppRootRouter.Configuration.*
 import com.switcherette.boarribs.app_root.routing.AppRootRouter.Configuration.Permanent.NavBar
+import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm
 import kotlinx.parcelize.Parcelize
 
@@ -40,7 +41,7 @@ class AppRootRouter internal constructor(
             @Parcelize
             object NewSightingMap : Configuration()
             @Parcelize
-            data class NewSightingForm(val longitude: Double, val latitude: Double) : Configuration()
+            data class NewSightingForm(val coordinates: Coordinates) : Configuration()
             @Parcelize
             object AllSightingsMap : Configuration()
             @Parcelize
@@ -57,7 +58,7 @@ class AppRootRouter internal constructor(
         with(builders) {
             when (val configuration = routing.configuration) {
                 is Content.NewSightingMap -> child { newSightingMapBuilder.build(it) }
-                is Content.NewSightingForm -> child { newSightingFormBuilder.build(it, NewSightingForm.BuildParams(configuration.longitude, configuration.latitude)) }
+                is Content.NewSightingForm -> child { newSightingFormBuilder.build(it, NewSightingForm.BuildParams(configuration.coordinates))}
                 is Content.AllSightingsMap -> child { allSightingsMapBuilder.build(it) }
                 is Content.AllSightingsList -> child { allSightingsListBuilder.build(it) }
                 is NavBar -> child { navBarBuilder.build(it) }

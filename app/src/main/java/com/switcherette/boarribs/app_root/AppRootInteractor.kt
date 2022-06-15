@@ -13,6 +13,7 @@ import com.badoo.ribs.routing.source.backstack.operation.pushOverlay
 import com.switcherette.boarribs.all_sightings_list.AllSightingsList
 import com.switcherette.boarribs.all_sightings_map.AllSightingsMap
 import com.switcherette.boarribs.app_root.routing.AppRootRouter.Configuration
+import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.nav_bar.NavBar
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm
 import com.switcherette.boarribs.new_sighting_map.NewSightingMap
@@ -105,7 +106,7 @@ internal class AppRootInteractor(
 
     private val newSightingMapOutputConsumer: Consumer<NewSightingMap.Output> = Consumer {
         when (it) {
-            is NewSightingMap.Output.LocationAdded -> backStack.push(Configuration.Content.NewSightingForm(it.longitude, it.latitude))
+            is NewSightingMap.Output.LocationAdded -> backStack.push(Configuration.Content.NewSightingForm(Coordinates(it.longitude, it.latitude)))
         }
     }
 

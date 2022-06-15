@@ -15,6 +15,6 @@ internal object ViewEventToWish : (Event) -> Wish? {
                 event.comments,
                 event.comments
             )
-            Event.TakePicture -> null
+            else -> null
         }
 }

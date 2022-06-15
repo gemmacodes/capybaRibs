@@ -90,6 +90,7 @@ internal class AllSightingsMapFeature(
                 is Effect.LoadingFailed -> state.copy(
                     content = State.Content.SightingLoadingError
                 )
+                else -> TODO()
             }
     }
 }

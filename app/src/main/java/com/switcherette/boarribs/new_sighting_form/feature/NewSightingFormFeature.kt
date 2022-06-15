@@ -1,5 +1,6 @@
 package com.switcherette.boarribs.new_sighting_form.feature
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment
@@ -11,7 +12,9 @@ import com.badoo.mvicore.element.Bootstrapper
 import com.badoo.mvicore.element.NewsPublisher
 import com.badoo.mvicore.element.Reducer
 import com.badoo.mvicore.feature.ActorReducerFeature
+import com.badoo.ribs.android.activitystarter.ActivityStarter
 import com.switcherette.boarribs.R
+import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.data.Sighting
 import com.switcherette.boarribs.data.SightingsDataSource
 import com.switcherette.boarribs.new_sighting_form.feature.NewSightingFormFeature.*
@@ -25,11 +28,12 @@ import java.util.*
 internal class NewSightingFormFeature(
     dataSource: SightingsDataSource,
     longitude: Double,
-    latitude: Double
+    latitude: Double,
+    activityStarter: ActivityStarter
 ) : ActorReducerFeature<Wish, Effect, State, News>(
     initialState = State(),
     bootstrapper = BootStrapperImpl(),
-    actor = ActorImpl(dataSource, longitude, latitude),
+    actor = ActorImpl(dataSource, longitude, latitude, activityStarter),
     reducer = ReducerImpl(),
     newsPublisher = NewsPublisherImpl()
 ) {
@@ -41,8 +45,7 @@ internal class NewSightingFormFeature(
         val piglets: Int = 0,
         val interaction: Boolean = false,
         val comments: String = "TBD",
-        val latitude: Double = 0.0,
-        val longitude: Double = 0.0,
+        val coordinates: Coordinates = Coordinates(0.0,0.0),
         val timestamp: Long = 0,
         val picture: String = "TBD"
     )
@@ -79,7 +82,8 @@ internal class NewSightingFormFeature(
     class ActorImpl(
         private val dataSource: SightingsDataSource,
         private val longitude: Double,
-        private val latitude: Double
+        private val latitude: Double,
+        private val activityStarter: ActivityStarter
     ) : Actor<State, Wish, Effect> {
         override fun invoke(state: State, wish: Wish): Observable<Effect> =
             when (wish) {
@@ -100,8 +104,7 @@ internal class NewSightingFormFeature(
                     piglets = wish.piglets!!,
                     interaction = wish.interaction,
                     comments = wish.comments!!,
-                    latitude = latitude,
-                    longitude = longitude,
+                    coordinates = Coordinates(latitude, longitude, ),
                     timestamp = System.currentTimeMillis(),
                     picture = wish.picture
                         ?: Uri.parse("android.resource://com.switcherette.boarribs/" + R.drawable.boar_img)
@@ -117,40 +120,50 @@ internal class NewSightingFormFeature(
                 type = "image/*"
                 action = Intent.ACTION_GET_CONTENT
             }.let {
-                startActivityForResult(Intent.createChooser(it, "Select Picture"), 2)
+                //startActivityForResult(Intent.createChooser(it, "Select Picture"), 2)
                 return Observable.just(Effect.PhotoFromGalleryChosen(it.data.toString()))
             }
         }
 
+
+
         private fun dispatchTakePictureIntent(): Observable<Effect> {
-            Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-                // Ensure that there's a camera activity to handle the intent
-                takePictureIntent.resolveActivity(requireActivity().packageManager)?.also {
-                    // Create the File where the photo should go
-                    val photoFile: File? = try {
-                        createImageFile()
-                    } catch (ex: IOException) {
-                        // Error occurred while creating the File
-                        Toast.makeText(requireContext(), "Error, ouch!", Toast.LENGTH_SHORT).show()
-                        null
-                    }
-                    // Continue only if the File was successfully created
-                    photoFile?.also {
-                        val photoURI: Uri = FileProvider.getUriForFile(
-                            requireContext(),
-                            "com.switcherette.boarribs.fileprovider",
-                            it
-                        )
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                        startActivityForResult(takePictureIntent, 1)
-                    }
-                    return if (photoFile != null) {
-                        return Observable.just(Effect.PhotoTaken(photoFile.absolutePath))
-                    } else Observable.empty()
-                }
-
-            }
-
+            var result: Observable<Effect> = Observable.empty()
+//            activityStarter.startActivity() {
+//                Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+//                    // Ensure that there's a camera activity to handle the intent
+//                    takePictureIntent.resolveActivity(Activity().packageManager)?.also {
+//                        // Create the File where the photo should go
+//                        val photoFile: File? = try {
+//                            createImageFile()
+//                        } catch (ex: IOException) {
+//                            // Error occurred while creating the File
+//                            Toast.makeText(applicationContext, "Error, ouch!", Toast.LENGTH_SHORT)
+//                                .show()
+//                            null
+//                        }
+//                        // Continue only if the File was successfully created
+//                        photoFile?.also {
+//                            val photoURI: Uri = FileProvider.getUriForFile(
+//                                applicationContext,
+//                                "com.switcherette.boarribs.fileprovider",
+//                                it
+//                            )
+//                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+//                            startActivityForResult(takePictureIntent, 1)
+//
+//
+//                        }
+//                        if (photoFile != null) {
+//                            result = Observable.just(Effect.PhotoTaken(photoFile.absolutePath))
+//                        }
+//
+//                    }
+//
+//                }
+//                return result
+//            }
+            return result
         }
     }
 

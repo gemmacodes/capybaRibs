@@ -60,20 +60,20 @@ class SightingDetailsViewImpl private constructor(
                 with(binding) {
                     mapSighting.getMapboxMap().setCamera(
                         CameraOptions.Builder()
-                            .center(Point.fromLngLat(vm.sighting.longitude, vm.sighting.latitude))
+                            .center(Point.fromLngLat(vm.sighting.coordinates.longitude, vm.sighting.coordinates.latitude))
                             .zoom(14.0)
                             .build()
                     )
                     mapSighting.getMapboxMap().loadStyleUri(
                         Style.MAPBOX_STREETS
                     ) {
-                        addBoarAnnotation(vm.sighting.longitude, vm.sighting.latitude)
+                        addBoarAnnotation(vm.sighting.coordinates.longitude, vm.sighting.coordinates.latitude)
                     }
 
                     tvDate.text =
                         SimpleDateFormat("dd/MM/yyyy HH:mm").format(Date(vm.sighting.timestamp))
                     tvLocation.text =
-                        "${((vm.sighting.latitude * 100.0).roundToInt()) / 100.0}, ${((vm.sighting.longitude * 100.0).roundToInt()) / 100.0}"
+                        "${((vm.sighting.coordinates.latitude * 100.0).roundToInt()) / 100.0}, ${((vm.sighting.coordinates.longitude * 100.0).roundToInt()) / 100.0}"
                     tvHeading.text = "${vm.sighting.heading}"
                     tvComments.text = vm.sighting.comments
 

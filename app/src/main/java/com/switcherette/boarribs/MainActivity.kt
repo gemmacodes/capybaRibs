@@ -1,6 +1,7 @@
 package com.switcherette.boarribs
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -11,6 +12,8 @@ import com.badoo.ribs.android.dialog.DialogLauncher
 import com.badoo.ribs.android.permissionrequester.PermissionRequester
 import com.badoo.ribs.core.Rib
 import com.badoo.ribs.core.modality.BuildContext
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.switcherette.boarribs.app_root.AppRoot
 import com.switcherette.boarribs.app_root.AppRootBuilder
 import com.switcherette.boarribs.data.SightingsDataSource
@@ -23,6 +26,9 @@ class MainActivity : RibActivity() {
 
     override val rootViewGroup: ViewGroup
         get() = root
+
+    val fusedLocationClient by lazy {
+        LocationServices.getFusedLocationProviderClient(this) }
 
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +46,12 @@ class MainActivity : RibActivity() {
 
                 override val dialogLauncher: DialogLauncher
                     get() = integrationPoint.dialogLauncher
+
+                override val activityStarter: ActivityStarter
+                    get() = integrationPoint.activityStarter
+
+                override val locationClient: FusedLocationProviderClient
+                    get() = fusedLocationClient
             }
         )
             .build(BuildContext.root(savedInstanceState = savedInstanceState))
