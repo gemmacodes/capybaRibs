@@ -62,6 +62,7 @@ internal class NewSightingFormFeature(
 
         object TakePhoto : Wish()
         object ChoosePhotoFromGallery : Wish()
+        data class UpdatePermissions(val permissions: List<String>) : Wish()
     }
 
     sealed class Effect {
@@ -90,6 +91,7 @@ internal class NewSightingFormFeature(
                 is Wish.SaveSighting -> saveForm(dataSource, wish)
                 Wish.ChoosePhotoFromGallery -> selectFromCamera()
                 Wish.TakePhoto -> dispatchTakePictureIntent()
+                else -> TODO()
             }
 
         private fun saveForm(

@@ -8,6 +8,7 @@ import com.badoo.ribs.rx2.clienthelper.connector.NodeConnector
 import com.badoo.ribs.rx2.workflows.RxWorkflowNode
 import com.switcherette.boarribs.app_root.AppRoot.Input
 import com.switcherette.boarribs.app_root.AppRoot.Output
+import com.switcherette.boarribs.new_sighting_map.NewSightingMap
 import io.reactivex.Single
 
 class AppRootNode internal constructor(
@@ -21,5 +22,5 @@ class AppRootNode internal constructor(
     plugins = plugins
 ), AppRoot, Connectable<Input, Output> by connector {
 
-
+    override fun newSightingMap(): Single<NewSightingMap> = waitForChildAttached()
 }

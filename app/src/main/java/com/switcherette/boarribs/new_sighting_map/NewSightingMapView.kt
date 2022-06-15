@@ -13,6 +13,8 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.Style
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
+import com.mapbox.maps.extension.style.expressions.generated.Expression
+import com.mapbox.maps.extension.style.layers.generated.FillLayer
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.annotation.Annotation
 import com.mapbox.maps.plugin.annotation.annotations
@@ -28,6 +30,7 @@ import com.switcherette.boarribs.new_sighting_map.NewSightingMapView.ViewModel
 import com.switcherette.boarribs.utils.bitmapFromDrawableRes
 import io.reactivex.ObservableSource
 import io.reactivex.functions.Consumer
+
 
 interface NewSightingMapView : RibView,
     ObservableSource<Event>,
@@ -112,13 +115,27 @@ class NewSightingMapViewImpl private constructor(
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
                 .withPoint(Point.fromLngLat(coordinates.longitude, coordinates.latitude))
                 .withIconImage(it)
-                .withIconSize(0.3)
+                .withIconSize(0.2)
                 .withDraggable(true)
 
             pointAnnotationManager.addDragListener(dragListener)
             pointAnnotationManager.create(pointAnnotationOptions)
         }.also { boarAnnotation = it }
 
+/*
+interpolate {
+                    linear()
+                    zoom()
+                    stop {
+                        literal(0.0)
+                        literal(0.6)
+                    }
+                    stop {
+                        literal(20.0)
+                        literal(1.0)
+                    }
+                }
+ */
 
     private val dragListener = object : OnPointAnnotationDragListener {
         override fun onAnnotationDrag(annotation: Annotation<*>) {}
@@ -133,12 +150,13 @@ class NewSightingMapViewImpl private constructor(
         }
     }
 
+
     private fun initLocationComponent() {
         val locationComponentPlugin = binding.mapAdd.location
 
         locationComponentPlugin.updateSettings {
             this.enabled = true
-            this.pulsingEnabled = true
+            this.pulsingEnabled = false
             this.locationPuck = LocationPuck2D(
                 bearingImage = AppCompatResources.getDrawable(
                     context,
@@ -163,6 +181,7 @@ class NewSightingMapViewImpl private constructor(
             )
         }
     }
+
 
     private val onMoveListener = object : OnMoveListener {
         override fun onMoveBegin(detector: MoveGestureDetector) {

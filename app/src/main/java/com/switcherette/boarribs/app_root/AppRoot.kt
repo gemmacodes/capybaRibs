@@ -11,6 +11,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.switcherette.boarribs.app_root.AppRoot.Input
 import com.switcherette.boarribs.app_root.AppRoot.Output
 import com.switcherette.boarribs.data.SightingsDataSource
+import com.switcherette.boarribs.new_sighting_map.NewSightingMap
+import io.reactivex.Single
 
 interface AppRoot : Rib, Connectable<Input, Output> {
 
@@ -19,13 +21,19 @@ interface AppRoot : Rib, Connectable<Input, Output> {
         val locationClient: FusedLocationProviderClient
     }
 
-    sealed class Input {}
+    sealed class Input {
+        object RequestPermissions : Input()
+    }
 
-    sealed class Output {}
+    sealed class Output {
+        data class PermissionsGranted(val permissions: List<String>) : Output()
+    }
 
     class Customisation(
         val viewFactory: AppRootView.Factory = AppRootViewImpl.Factory()
     ) : RibCustomisation
+
+    fun newSightingMap(): Single<NewSightingMap>
 
 }
 

@@ -8,6 +8,7 @@ import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.data.SightingsDataSource
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm.Input
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm.Output
+import com.switcherette.boarribs.new_sighting_map.NewSightingMap
 import io.reactivex.Single
 
 interface NewSightingForm : Rib, Connectable<Input, Output> {
@@ -20,10 +21,13 @@ interface NewSightingForm : Rib, Connectable<Input, Output> {
         val coordinates: Coordinates
     )
 
-    sealed class Input
+    sealed class Input{
+        data class PermissionsGranted(val permissions:List<String>) : Input()
+    }
 
     sealed class Output{
         object SightingAdded : Output()
+        data class PermissionsRequired(val permissions:List<String>) : Output()
     }
 
     class Customisation(

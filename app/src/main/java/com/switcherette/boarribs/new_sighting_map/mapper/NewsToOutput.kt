@@ -8,6 +8,6 @@ internal object NewsToOutput : (News) -> Output? {
     override fun invoke(news: News): Output? =
         when (news) {
             is News.LocationSaved -> Output.LocationAdded(news.coordinates.longitude, news.coordinates.latitude)
-            else -> null
+            is News.PermissionsRequired -> Output.PermissionsRequired(news.permissions)
         }
 }

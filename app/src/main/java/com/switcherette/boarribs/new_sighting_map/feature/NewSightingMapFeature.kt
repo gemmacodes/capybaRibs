@@ -2,15 +2,15 @@ package com.switcherette.boarribs.new_sighting_map.feature
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.util.Log
-import com.badoo.mvicore.element.*
+import com.badoo.mvicore.element.Actor
+import com.badoo.mvicore.element.NewsPublisher
+import com.badoo.mvicore.element.PostProcessor
+import com.badoo.mvicore.element.Reducer
 import com.badoo.mvicore.feature.BaseFeature
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.new_sighting_map.feature.NewSightingMapFeature.*
-import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.Observable.empty
 import io.reactivex.Observable.just
 
 internal class NewSightingMapFeature(
@@ -18,7 +18,6 @@ internal class NewSightingMapFeature(
 ) : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
     wishToAction = Action::ExecuteWish,
-    bootstrapper = BootStrapperImpl(),
     actor = ActorImpl(locationProviderClient),
     reducer = ReducerImpl(),
     newsPublisher = NewsPublisherImpl(),
@@ -26,12 +25,10 @@ internal class NewSightingMapFeature(
 ) {
 
     data class State(
-        val boarLocation: Coordinates = Coordinates(41.409428,2.111255),
+        val boarLocation: Coordinates = Coordinates(41.409428, 2.111255),
         val locationPermissionStatus: LocationPermissionStatus? = null,
-        val boarLocationStatus: BoarLocationStatus = BoarLocationStatus.ONGOING,
     ) {
         enum class LocationPermissionStatus { GRANTED, DENIED }
-        enum class BoarLocationStatus { ONGOING, SAVED }
     }
 
     sealed class Wish {
@@ -55,12 +52,7 @@ internal class NewSightingMapFeature(
 
     sealed class News {
         data class LocationSaved(val coordinates: Coordinates) : News()
-        data class PermissionRequired(val permissions: List<String>) : News()
-    }
-
-    class BootStrapperImpl : Bootstrapper<Action> {
-        override fun invoke(): Observable<Action> =
-            empty()
+        data class PermissionsRequired(val permissions: List<String>) : News()
     }
 
     class ActorImpl(
@@ -70,10 +62,8 @@ internal class NewSightingMapFeature(
             when (action) {
                 is Action.ExecuteWish -> when (action.wish) {
                     is Wish.UpdatePermissions -> handlePermissionResult(action.wish.granted)
-                    is Wish.FindMyLocation -> getGeolocation(state).also {
-                        Log.d("ANNDRESSA",it.toString())
-                    }
-                    is Wish.SaveLocation -> just(Effect.LocationSaved(state.boarLocation!!))
+                    is Wish.FindMyLocation -> getMyLocation(state)
+                    is Wish.SaveLocation -> just(Effect.LocationSaved(state.boarLocation))
                     is Wish.UpdateBoarLocation -> just(Effect.BoarLocationUpdated(action.wish.coordinates))
                 }
             }
@@ -89,21 +79,22 @@ internal class NewSightingMapFeature(
                 just(Effect.PermissionsUpdated(status))
             }
 
+
         @SuppressLint("MissingPermission")
-        fun getGeolocation(state: State): Observable<Effect> {
-            return if(state.locationPermissionStatus != State.LocationPermissionStatus.GRANTED){
+        private fun getMyLocation(state: State): Observable<Effect> {
+            return if (state.locationPermissionStatus != State.LocationPermissionStatus.GRANTED) {
                 just(Effect.PermissionsNotGranted)
-            } else{
+            } else {
                 Observable.fromPublisher {
                     locationProviderClient.lastLocation.addOnCompleteListener { result ->
-                        if(result.isSuccessful) {
+                        if (result.isSuccessful) {
                             it.onNext(
                                 Effect.BoarLocationUpdated(
-                                Coordinates(
-                                    result.result.latitude,
-                                    result.result.longitude,
-                                )
-                            ))
+                                    Coordinates(
+                                        result.result.latitude,
+                                        result.result.longitude,
+                                    )
+                                ))
                         }
                         it.onComplete()
                     }
@@ -120,18 +111,15 @@ internal class NewSightingMapFeature(
                 is Effect.PermissionsUpdated -> state.copy(locationPermissionStatus = effect.status)
                 is Effect.PermissionsNotGranted -> state
                 is Effect.BoarLocationUpdated -> state.copy(boarLocation = effect.coordinates)
-                is Effect.LocationSaved -> state.copy(
-                    boarLocation = effect.coordinates,
-                    boarLocationStatus = State.BoarLocationStatus.SAVED
-                )
+                is Effect.LocationSaved -> state.copy(boarLocation = effect.coordinates)
             }
     }
 
     class NewsPublisherImpl : NewsPublisher<Action, Effect, State, News> {
-        override fun invoke(action:Action, effect: Effect, state: State): News? =
+        override fun invoke(action: Action, effect: Effect, state: State): News? =
             when (effect) {
                 is Effect.LocationSaved -> News.LocationSaved(effect.coordinates)
-                is Effect.PermissionsNotGranted -> News.PermissionRequired(
+                is Effect.PermissionsNotGranted -> News.PermissionsRequired(
                     LOCATION_PERMISSIONS)
                 else -> null
             }
@@ -140,9 +128,10 @@ internal class NewSightingMapFeature(
 
     class PostProcessorImpl : PostProcessor<Action, Effect, State> {
         override fun invoke(action: Action, effect: Effect, state: State): Action? =
-            when(effect){
+            when (effect) {
                 is Effect.PermissionsUpdated -> {
-                    if(effect.status == State.LocationPermissionStatus.GRANTED) Action.ExecuteWish(Wish.FindMyLocation)
+                    if (effect.status == State.LocationPermissionStatus.GRANTED)
+                        Action.ExecuteWish(Wish.FindMyLocation)
                     else null
                 }
                 else -> null

@@ -17,10 +17,12 @@ interface NewSightingMap : Rib, Connectable<Input, Output> {
     }
 
     sealed class Input {
+        data class PermissionsGranted(val permissions:List<String>) : Input()
     }
 
     sealed class Output{
         data class LocationAdded(val longitude: Double, val latitude: Double) : Output()
+        data class PermissionsRequired(val permissions:List<String>) : Output()
     }
 
     class Customisation(

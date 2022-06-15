@@ -14,7 +14,7 @@ class NewSightingMapBuilder(
     override fun build(buildParams: BuildParams<Nothing?>): NewSightingMap {
         val customisation = buildParams.getOrDefault(NewSightingMap.Customisation())
         val feature = feature(dependency.locationClient)
-        val interactor = interactor(buildParams, feature, dependency.permissionRequester)
+        val interactor = interactor(buildParams, feature)
 
         return node(buildParams, customisation, feature, interactor)
     }
@@ -25,11 +25,9 @@ class NewSightingMapBuilder(
     private fun interactor(
         buildParams: BuildParams<*>,
         feature: NewSightingMapFeature,
-        permissionRequester: PermissionRequester,
     ) = NewSightingMapInteractor(
         buildParams = buildParams,
         feature = feature,
-        permissionRequester = permissionRequester
     )
 
     private fun node(

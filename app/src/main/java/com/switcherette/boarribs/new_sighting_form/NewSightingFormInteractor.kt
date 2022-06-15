@@ -10,6 +10,7 @@ import com.switcherette.boarribs.new_sighting_form.feature.NewSightingFormFeatur
 import com.switcherette.boarribs.new_sighting_form.mapper.NewsToOutput
 import com.switcherette.boarribs.new_sighting_form.mapper.StateToViewModel
 import com.switcherette.boarribs.new_sighting_form.mapper.ViewEventToWish
+import com.switcherette.boarribs.new_sighting_form.mapper.InputToWish
 
 internal class NewSightingFormInteractor(
     buildParams: BuildParams<*>,
@@ -21,6 +22,7 @@ internal class NewSightingFormInteractor(
     override fun onCreate(nodeLifecycle: Lifecycle) {
         nodeLifecycle.createDestroy {
            bind(feature.news to rib.output using NewsToOutput)
+            bind(rib.input to feature using InputToWish)
         }
     }
 

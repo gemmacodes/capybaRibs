@@ -3,6 +3,7 @@
 package com.switcherette.boarribs.app_root
 
 import com.badoo.ribs.android.dialog.DialogLauncher
+import com.badoo.ribs.android.permissionrequester.PermissionRequester
 import com.badoo.ribs.builder.SimpleBuilder
 import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.routing.source.RoutingSource
@@ -19,7 +20,7 @@ class AppRootBuilder(
         val connections = AppRootChildBuilders(dependency)
         val customisation = buildParams.getOrDefault(AppRoot.Customisation())
         val backStack = backStack(buildParams)
-        val interactor = interactor(buildParams, backStack)
+        val interactor = interactor(buildParams, backStack, dependency.permissionRequester)
         val router = router(
             buildParams,
             backStack + RoutingSource.permanent(),
@@ -39,9 +40,11 @@ class AppRootBuilder(
     private fun interactor(
         buildParams: BuildParams<*>,
         backStack: BackStack<Configuration>,
+        permissionRequester: PermissionRequester
     ) = AppRootInteractor(
         buildParams = buildParams,
         backStack = backStack,
+        permissionRequester = permissionRequester
     )
 
     private fun router(
