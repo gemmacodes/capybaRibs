@@ -141,7 +141,10 @@ internal class NewSightingMapFeature(
     class PostProcessorImpl : PostProcessor<Action, Effect, State> {
         override fun invoke(action: Action, effect: Effect, state: State): Action? =
             when(effect){
-                is Effect.PermissionsUpdated -> Action.ExecuteWish(Wish.FindMyLocation)
+                is Effect.PermissionsUpdated -> {
+                    if(effect.status == State.LocationPermissionStatus.GRANTED) Action.ExecuteWish(Wish.FindMyLocation)
+                    else null
+                }
                 else -> null
             }
     }

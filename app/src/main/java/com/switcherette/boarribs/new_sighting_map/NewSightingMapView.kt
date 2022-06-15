@@ -108,11 +108,11 @@ class NewSightingMapViewImpl private constructor(
     }
 
     private fun createBoarAnnotation(coordinates: Coordinates): PointAnnotation =
-        bitmapFromDrawableRes(context, R.drawable.boar)!!.let {
+        bitmapFromDrawableRes(context, R.drawable.capibara)!!.let {
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
                 .withPoint(Point.fromLngLat(coordinates.longitude, coordinates.latitude))
                 .withIconImage(it)
-                .withIconSize(0.5)
+                .withIconSize(0.3)
                 .withDraggable(true)
 
             pointAnnotationManager.addDragListener(dragListener)
