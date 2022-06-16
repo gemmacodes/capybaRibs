@@ -1,4 +1,4 @@
-package com.switcherette.boarribs.app_root
+package com.switcherette.boarribs.new_sighting_container
 
 import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.core.plugin.Plugin
@@ -6,20 +6,19 @@ import com.badoo.ribs.core.view.ViewFactory
 import com.badoo.ribs.rx2.clienthelper.connector.Connectable
 import com.badoo.ribs.rx2.clienthelper.connector.NodeConnector
 import com.badoo.ribs.rx2.workflows.RxWorkflowNode
-import com.switcherette.boarribs.app_root.AppRoot.Input
-import com.switcherette.boarribs.app_root.AppRoot.Output
-import com.switcherette.boarribs.new_sighting_map.NewSightingMap
+import com.switcherette.boarribs.new_sighting_container.NewSightingContainer.Input
+import com.switcherette.boarribs.new_sighting_container.NewSightingContainer.Output
 import io.reactivex.Single
 
-class AppRootNode internal constructor(
+class NewSightingContainerNode internal constructor(
     buildParams: BuildParams<*>,
-    viewFactory: ViewFactory<AppRootView>?,
+    viewFactory: ViewFactory<NewSightingContainerView>?,
     plugins: List<Plugin> = emptyList(),
     connector: NodeConnector<Input, Output> = NodeConnector()
-) : RxWorkflowNode<AppRootView>(
+) : RxWorkflowNode<NewSightingContainerView>(
     buildParams = buildParams,
     viewFactory = viewFactory,
     plugins = plugins
-), AppRoot, Connectable<Input, Output> by connector {
+), NewSightingContainer, Connectable<Input, Output> by connector {
 
 }

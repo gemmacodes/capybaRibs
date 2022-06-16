@@ -12,9 +12,9 @@ internal object ViewEventToWish : (Event) -> Wish? {
                 event.adults,
                 event.piglets,
                 event.interaction,
-                event.comments,
                 event.comments
             )
-            else -> null
+            is Event.TakePhoto -> TODO()
+            is Event.UpdatePhotoURL -> TODO()
         }
 }

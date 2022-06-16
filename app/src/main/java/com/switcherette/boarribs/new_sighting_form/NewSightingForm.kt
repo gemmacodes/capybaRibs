@@ -13,7 +13,7 @@ import io.reactivex.Single
 
 interface NewSightingForm : Rib, Connectable<Input, Output> {
 
-    interface Dependency : CanProvideActivityStarter{
+    interface Dependency : CanProvideActivityStarter {
         val sightingsDataSource: SightingsDataSource
     }
 

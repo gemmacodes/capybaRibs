@@ -7,4 +7,5 @@
     <string name="take_photo">Take photo</string>
     <string name="choose_gallery">Choose from gallery</string>
     <string name="cancel_photo">Cancel</string>
+    <string name="mandatory_fields_toast">\'Title\', \'Adults\' and \'Piglets\' are mandatory fields!</string>
 </resources>

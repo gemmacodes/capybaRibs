@@ -1,24 +1,21 @@
 package com.switcherette.boarribs.new_sighting_form
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.provider.MediaStore
+import android.os.Environment
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
 import androidx.core.content.FileProvider
 import com.badoo.ribs.core.customisation.inflate
 import com.badoo.ribs.core.view.AndroidRibView
 import com.badoo.ribs.core.view.RibView
 import com.badoo.ribs.core.view.ViewFactory
-import com.bumptech.glide.Glide
 import com.jakewharton.rxrelay2.PublishRelay
+import com.switcherette.boarribs.BuildConfig
 import com.switcherette.boarribs.R
 import com.switcherette.boarribs.databinding.RibNewSightingFormBinding
 import com.switcherette.boarribs.new_sighting_form.NewSightingFormView.Event
@@ -26,7 +23,8 @@ import com.switcherette.boarribs.new_sighting_form.NewSightingFormView.ViewModel
 import io.reactivex.ObservableSource
 import io.reactivex.functions.Consumer
 import java.io.File
-import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 interface NewSightingFormView : RibView,
     ObservableSource<Event>,
@@ -39,11 +37,11 @@ interface NewSightingFormView : RibView,
             val piglets: Int?,
             val interaction: Boolean,
             val comments: String?,
-            val picture: String?
+            val picture: String?,
         ) : Event()
 
-        object TakePhoto: Event()
-        object ChoosePhotoFromGallery: Event()
+        object TakePhoto : Event()
+        data class UpdatePhotoURL(val uri: Uri) : Event()
 
     }
 
@@ -53,7 +51,8 @@ interface NewSightingFormView : RibView,
         val piglets: Int?,
         val interaction: Boolean,
         val comments: String?,
-        val picture: String?
+        val picture: String?,
+        val showDialog: Boolean
     )
 
     fun interface Factory : ViewFactory<NewSightingFormView>
@@ -62,14 +61,14 @@ interface NewSightingFormView : RibView,
 
 class NewSightingFormViewImpl private constructor(
     override val androidView: ViewGroup,
-    private val events: PublishRelay<Event> = PublishRelay.create()
+    private val events: PublishRelay<Event> = PublishRelay.create(),
 ) : AndroidRibView(),
     NewSightingFormView,
     ObservableSource<Event> by events,
     Consumer<ViewModel> {
 
     class Factory(
-        @LayoutRes private val layoutRes: Int = R.layout.rib_new_sighting_form
+        @LayoutRes private val layoutRes: Int = R.layout.rib_new_sighting_form,
     ) : NewSightingFormView.Factory {
         override fun invoke(context: ViewFactory.Context): NewSightingFormView =
             NewSightingFormViewImpl(
@@ -90,7 +89,8 @@ class NewSightingFormViewImpl private constructor(
             if (comments.isEmpty()) {
                 comments = context.getString(R.string.no_comments)
             }
-            val picturePath = null
+            val picture = ivThumbnail.id.toString()
+
 
             fabAddForm.setOnClickListener {
                 if (heading.isNotEmpty() && adults.isNotEmpty() && piglets.isNotEmpty()) {
@@ -101,20 +101,20 @@ class NewSightingFormViewImpl private constructor(
                             piglets.toInt(),
                             interaction,
                             comments,
-                            picturePath
+                            picture
                         )
                     )
                 } else {
                     Toast.makeText(
                         context,
-                        "'Title', 'Adults' and 'Piglets' are mandatory fields!",
+                        context.getString(R.string.mandatory_fields_toast),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
             }
 
             btnAddPicture.setOnClickListener {
-                showConfirmationDialog(it)
+                if (vm.showDialog) showConfirmationDialog(it) else events.accept(Event.TakePhoto)
             }
 
 
@@ -132,14 +132,17 @@ class NewSightingFormViewImpl private constructor(
         )
         builder.setItems(options, DialogInterface.OnClickListener { dialog, item ->
             if (options[item] == context.getString(R.string.take_photo)) {
-                events.accept(Event.TakePhoto)
+                TODO()
             } else if (options[item] == context.getString(R.string.choose_gallery)) {
-                events.accept(Event.ChoosePhotoFromGallery)
+                TODO()
             } else if (options[item] == context.getString(R.string.cancel_photo)) {
                 dialog.dismiss()
             }
         })
         builder.show()
     }
+
+
+
 
 }

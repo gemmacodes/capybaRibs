@@ -39,9 +39,7 @@ class AppRootRouter internal constructor(
 
         sealed class Content : Configuration() {
             @Parcelize
-            object NewSightingMap : Configuration()
-            @Parcelize
-            data class NewSightingForm(val coordinates: Coordinates) : Configuration()
+            object NewSightingContainer : Configuration()
             @Parcelize
             object AllSightingsMap : Configuration()
             @Parcelize
@@ -57,10 +55,9 @@ class AppRootRouter internal constructor(
     override fun resolve(routing: Routing<Configuration>): Resolution =
         with(builders) {
             when (val configuration = routing.configuration) {
-                is Content.NewSightingMap -> child { newSightingMapBuilder.build(it) }
-                is Content.NewSightingForm -> child { newSightingFormBuilder.build(it, NewSightingForm.BuildParams(configuration.coordinates))}
                 is Content.AllSightingsMap -> child { allSightingsMapBuilder.build(it) }
                 is Content.AllSightingsList -> child { allSightingsListBuilder.build(it) }
+                is Content.NewSightingContainer -> child { newSightingContainerBuilder.build(it)}
                 is NavBar -> child { navBarBuilder.build(it) }
                 is Overlay.SightingDetails -> showDialog(
                     routingSource,

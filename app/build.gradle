@@ -76,7 +76,10 @@ dependencies {
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.24'
     //gif drawable
     implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.24'
-    // Googles's Fused Location Provider
+    //Googles's Fused Location Provider
     implementation("com.google.android.gms:play-services-location:20.0.0")
+    // Needed for camera implementation
+    implementation "androidx.activity:activity-ktx:1.4.0"
+    implementation "androidx.fragment:fragment-ktx:1.4.1"
 
 }

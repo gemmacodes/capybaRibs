@@ -8,7 +8,8 @@ internal object NewsToOutput : (NewSightingFormFeature.News) -> Output? {
 
     override fun invoke(news: NewSightingFormFeature.News): Output? =
         when (news) {
-            NewSightingFormFeature.News.SightingSaved -> Output.SightingAdded
+            is NewSightingFormFeature.News.SightingSaved -> Output.SightingAdded
+            is NewSightingFormFeature.News.PermissionsRequired -> Output.PermissionsRequired(news.permissions)
         }
 }
 

@@ -1,54 +1,61 @@
 package com.switcherette.boarribs.new_sighting_form.feature
 
-import android.app.Activity
+import android.Manifest
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
-import android.provider.MediaStore
-import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import com.badoo.mvicore.element.Actor
-import com.badoo.mvicore.element.Bootstrapper
 import com.badoo.mvicore.element.NewsPublisher
+import com.badoo.mvicore.element.PostProcessor
 import com.badoo.mvicore.element.Reducer
-import com.badoo.mvicore.feature.ActorReducerFeature
+import com.badoo.mvicore.feature.BaseFeature
 import com.badoo.ribs.android.activitystarter.ActivityStarter
+import com.badoo.ribs.android.requestcode.RequestCodeClient
+import com.badoo.ribs.minimal.reactive.Source
+import com.badoo.ribs.rx2.adapter.rx2
+import com.switcherette.boarribs.BuildConfig
 import com.switcherette.boarribs.R
 import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.data.Sighting
 import com.switcherette.boarribs.data.SightingsDataSource
+import com.switcherette.boarribs.new_sighting_form.NewSightingFormView
 import com.switcherette.boarribs.new_sighting_form.feature.NewSightingFormFeature.*
 import io.reactivex.Observable
-import io.reactivex.Observable.empty
 import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
 internal class NewSightingFormFeature(
     dataSource: SightingsDataSource,
-    longitude: Double,
-    latitude: Double,
-    activityStarter: ActivityStarter
-) : ActorReducerFeature<Wish, Effect, State, News>(
+    coordinates: Coordinates,
+    activityStarter: ActivityStarter,
+) : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
-    bootstrapper = BootStrapperImpl(),
-    actor = ActorImpl(dataSource, longitude, latitude, activityStarter),
+    wishToAction = Action::ExecuteWish,
+    actor = ActorImpl(dataSource, coordinates, activityStarter),
     reducer = ReducerImpl(),
-    newsPublisher = NewsPublisherImpl()
+    newsPublisher = NewsPublisherImpl(),
+    postProcessor = PostProcessorImpl()
 ) {
 
     data class State(
-        val id: String = "TBD",
-        val heading: String = "TBD",
-        val adults: Int = 0,
-        val piglets: Int = 0,
+        val id: String? = null,
+        val heading: String? = null,
+        val adults: Int? = null,
+        val piglets: Int? = null,
         val interaction: Boolean = false,
-        val comments: String = "TBD",
-        val coordinates: Coordinates = Coordinates(0.0,0.0),
-        val timestamp: Long = 0,
-        val picture: String = "TBD"
-    )
+        val comments: String? = null,
+        val coordinates: Coordinates? = null,
+        val timestamp: Long? = null,
+        val picture: String? = null,
+        val cameraPermissionStatus: CameraPermissionStatus? = null,
+        val showDialog: Boolean = false,
+    ) {
+        enum class CameraPermissionStatus { GRANTED, DENIED }
+    }
 
     sealed class Wish {
         data class SaveSighting(
@@ -57,46 +64,58 @@ internal class NewSightingFormFeature(
             val piglets: Int?,
             val interaction: Boolean,
             val comments: String?,
-            val picture: String?
         ) : Wish()
 
-        object TakePhoto : Wish()
-        object ChoosePhotoFromGallery : Wish()
-        data class UpdatePermissions(val permissions: List<String>) : Wish()
+        object ShowImageSourceDialog : Wish()
+        data class UpdatePhotoUri(val uri: String) : Wish()
+        data class UpdatePermissions(val granted: List<String>) : Wish()
+    }
+
+    sealed class Action {
+        data class ExecuteWish(val wish: Wish) : Action()
     }
 
     sealed class Effect {
         object SightingSaved : Effect()
-        data class PhotoTaken(val picturePath: String) : Effect()
-        data class PhotoFromGalleryChosen(val picturePath: String) : Effect()
+        data class PhotoUriUpdated(val uri: String) : Effect()
+        data class PermissionsUpdated(val status: State.CameraPermissionStatus) : Effect()
+        object PermissionsNotGranted : Effect()
+        object ImageSourceDialogShown : Effect()
     }
 
     sealed class News {
         object SightingSaved : News()
-    }
-
-    class BootStrapperImpl : Bootstrapper<Wish> {
-        override fun invoke(): Observable<Wish> =
-            empty()
+        data class PermissionsRequired(val permissions: List<String>) : News()
     }
 
     class ActorImpl(
         private val dataSource: SightingsDataSource,
-        private val longitude: Double,
-        private val latitude: Double,
-        private val activityStarter: ActivityStarter
-    ) : Actor<State, Wish, Effect> {
-        override fun invoke(state: State, wish: Wish): Observable<Effect> =
-            when (wish) {
-                is Wish.SaveSighting -> saveForm(dataSource, wish)
-                Wish.ChoosePhotoFromGallery -> selectFromCamera()
-                Wish.TakePhoto -> dispatchTakePictureIntent()
-                else -> TODO()
+        private val coordinates: Coordinates,
+        private val activityStarter: ActivityStarter,
+    ) : Actor<State, Action, Effect> {
+        override fun invoke(state: State, action: Action): Observable<Effect> =
+            when (action) {
+                is Action.ExecuteWish -> when (action.wish) {
+                    is Wish.SaveSighting -> saveForm(dataSource, action.wish, state)
+                    is Wish.UpdatePhotoUri -> Observable.just(Effect.PhotoUriUpdated(action.wish.uri))
+                    is Wish.UpdatePermissions -> handlePermissionResult(action.wish.granted)
+                    is Wish.ShowImageSourceDialog -> Observable.just(Effect.ImageSourceDialogShown)
+                }
+            }
+
+        private fun handlePermissionResult(permissionsGranted: List<String>): Observable<Effect> =
+            if (permissionsGranted.containsAll(IMAGE_CAPTURE_PERMISSIONS)) {
+                State.CameraPermissionStatus.GRANTED
+            } else {
+                State.CameraPermissionStatus.DENIED
+            }.let { status ->
+                Observable.just(Effect.PermissionsUpdated(status))
             }
 
         private fun saveForm(
             dataSource: SightingsDataSource,
-            wish: Wish.SaveSighting
+            wish: Wish.SaveSighting,
+            state: State
         ): Observable<Effect> {
             dataSource.saveSighting(
                 Sighting(
@@ -106,9 +125,9 @@ internal class NewSightingFormFeature(
                     piglets = wish.piglets!!,
                     interaction = wish.interaction,
                     comments = wish.comments!!,
-                    coordinates = Coordinates(latitude, longitude, ),
+                    coordinates = coordinates,
                     timestamp = System.currentTimeMillis(),
-                    picture = wish.picture
+                    picture = state.picture
                         ?: Uri.parse("android.resource://com.switcherette.boarribs/" + R.drawable.boar_img)
                             .toString()
                 )
@@ -116,87 +135,52 @@ internal class NewSightingFormFeature(
             return Observable.just(Effect.SightingSaved)
         }
 
-
-        private fun selectFromCamera(): Observable<Effect> {
-            Intent().apply {
-                type = "image/*"
-                action = Intent.ACTION_GET_CONTENT
-            }.let {
-                //startActivityForResult(Intent.createChooser(it, "Select Picture"), 2)
-                return Observable.just(Effect.PhotoFromGalleryChosen(it.data.toString()))
-            }
-        }
-
-
-
-        private fun dispatchTakePictureIntent(): Observable<Effect> {
-            var result: Observable<Effect> = Observable.empty()
-//            activityStarter.startActivity() {
-//                Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-//                    // Ensure that there's a camera activity to handle the intent
-//                    takePictureIntent.resolveActivity(Activity().packageManager)?.also {
-//                        // Create the File where the photo should go
-//                        val photoFile: File? = try {
-//                            createImageFile()
-//                        } catch (ex: IOException) {
-//                            // Error occurred while creating the File
-//                            Toast.makeText(applicationContext, "Error, ouch!", Toast.LENGTH_SHORT)
-//                                .show()
-//                            null
-//                        }
-//                        // Continue only if the File was successfully created
-//                        photoFile?.also {
-//                            val photoURI: Uri = FileProvider.getUriForFile(
-//                                applicationContext,
-//                                "com.switcherette.boarribs.fileprovider",
-//                                it
-//                            )
-//                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-//                            startActivityForResult(takePictureIntent, 1)
-//
-//
-//                        }
-//                        if (photoFile != null) {
-//                            result = Observable.just(Effect.PhotoTaken(photoFile.absolutePath))
-//                        }
-//
-//                    }
-//
-//                }
-//                return result
-//            }
-            return result
-        }
     }
 
-    @Throws(IOException::class)
-    fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        )
-    }
 
     class ReducerImpl : Reducer<State, Effect> {
         override fun invoke(state: State, effect: Effect): State =
             when (effect) {
-                Effect.SightingSaved -> state
-                is Effect.PhotoFromGalleryChosen -> state.copy(picture = effect.picturePath)
-                is Effect.PhotoTaken -> state.copy(picture = effect.picturePath)
+                is Effect.SightingSaved -> state
+                is Effect.PhotoUriUpdated -> state.copy(picture = effect.uri)
+                is Effect.PermissionsNotGranted -> state
+                is Effect.PermissionsUpdated -> state.copy(cameraPermissionStatus = effect.status)
+                is Effect.ImageSourceDialogShown -> state.copy(showDialog = true)
             }
     }
 
-    class NewsPublisherImpl : NewsPublisher<Wish, Effect, State, News> {
-        override fun invoke(wish: Wish, effect: Effect, state: State): News? =
+    class NewsPublisherImpl : NewsPublisher<Action, Effect, State, News> {
+        override fun invoke(action: Action, effect: Effect, state: State): News? =
             when (effect) {
                 Effect.SightingSaved -> News.SightingSaved
-                is Effect.PhotoFromGalleryChosen -> TODO()
-                is Effect.PhotoTaken -> TODO()
+                is Effect.PermissionsNotGranted -> News.PermissionsRequired(
+                    IMAGE_CAPTURE_PERMISSIONS)
+                is Effect.PermissionsUpdated -> null
+                is Effect.PhotoUriUpdated -> null
+                is Effect.ImageSourceDialogShown -> null
             }
+    }
+
+    class PostProcessorImpl : PostProcessor<Action, Effect, State> {
+        override fun invoke(action: Action, effect: Effect, state: State): Action? =
+            when (effect) {
+                is Effect.PermissionsUpdated -> {
+                    if (effect.status == State.CameraPermissionStatus.GRANTED)
+                        Action.ExecuteWish(Wish.ShowImageSourceDialog)
+                    else null
+                }
+                else -> null
+            }
+    }
+
+    companion object {
+        private val IMAGE_CAPTURE_PERMISSIONS = mutableListOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO
+        ).apply {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
     }
 }

@@ -13,7 +13,8 @@ internal object StateToViewModel : (NewSightingFormFeature.State) -> ViewModel {
             piglets = state.piglets,
             interaction = state.interaction,
             comments = state.comments,
-            picture = state.picture
+            picture = state.picture,
+            showDialog = state.showDialog
         )
     }
 }

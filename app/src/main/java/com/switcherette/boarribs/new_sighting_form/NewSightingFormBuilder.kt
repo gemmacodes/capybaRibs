@@ -5,6 +5,7 @@ import com.badoo.ribs.android.activitystarter.CanProvideActivityStarter
 import com.badoo.ribs.builder.Builder
 import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.rx2.disposables
+import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.data.SightingsDataSource
 import com.switcherette.boarribs.new_sighting_form.feature.NewSightingFormFeature
 
@@ -16,8 +17,7 @@ class NewSightingFormBuilder(
         val customisation = buildParams.getOrDefault(NewSightingForm.Customisation())
         val feature = feature(
             dependency.sightingsDataSource,
-            buildParams.payload.coordinates.longitude,
-            buildParams.payload.coordinates.latitude,
+            buildParams.payload.coordinates,
             dependency.activityStarter
         )
         val interactor = interactor(buildParams, feature)
@@ -27,11 +27,10 @@ class NewSightingFormBuilder(
 
     private fun feature(
         dataSource: SightingsDataSource,
-        longitude: Double,
-        latitude: Double,
+        coordinates: Coordinates,
         activityStarter: ActivityStarter
     ) =
-        NewSightingFormFeature(dataSource, longitude, latitude, activityStarter)
+        NewSightingFormFeature(dataSource, coordinates, activityStarter)
 
     private fun interactor(
         buildParams: BuildParams<*>,

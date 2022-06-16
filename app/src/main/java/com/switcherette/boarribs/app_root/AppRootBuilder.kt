@@ -20,7 +20,7 @@ class AppRootBuilder(
         val connections = AppRootChildBuilders(dependency)
         val customisation = buildParams.getOrDefault(AppRoot.Customisation())
         val backStack = backStack(buildParams)
-        val interactor = interactor(buildParams, backStack, dependency.permissionRequester)
+        val interactor = interactor(buildParams, backStack)
         val router = router(
             buildParams,
             backStack + RoutingSource.permanent(),
@@ -39,12 +39,10 @@ class AppRootBuilder(
 
     private fun interactor(
         buildParams: BuildParams<*>,
-        backStack: BackStack<Configuration>,
-        permissionRequester: PermissionRequester
+        backStack: BackStack<Configuration>
     ) = AppRootInteractor(
         buildParams = buildParams,
-        backStack = backStack,
-        permissionRequester = permissionRequester
+        backStack = backStack
     )
 
     private fun router(

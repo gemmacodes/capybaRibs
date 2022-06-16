@@ -6,6 +6,8 @@ import com.badoo.ribs.core.customisation.RibCustomisation
 import com.badoo.ribs.rx2.clienthelper.connector.Connectable
 import com.switcherette.boarribs.all_sightings_map.AllSightingsMap.Input
 import com.switcherette.boarribs.all_sightings_map.AllSightingsMap.Output
+import com.switcherette.boarribs.app_root.AppRootView
+import com.switcherette.boarribs.app_root.AppRootViewImpl
 import com.switcherette.boarribs.data.SightingsDataSource
 
 interface AllSightingsMap : Rib, Connectable<Input, Output> {
