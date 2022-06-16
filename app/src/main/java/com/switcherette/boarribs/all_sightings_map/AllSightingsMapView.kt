@@ -1,7 +1,9 @@
 package com.switcherette.boarribs.all_sightings_map
 
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.badoo.ribs.core.customisation.inflate
 import com.badoo.ribs.core.view.AndroidRibView
 import com.badoo.ribs.core.view.RibView
@@ -48,7 +50,11 @@ class AllSightingsMapViewImpl private constructor(
     Consumer<ViewModel> {
 
     private val sightingsMap: MapView by lazy { findViewById(R.id.mapView) }
+    private val loadingAnimation: ConstraintLayout by lazy { findViewById(R.id.clAddMap) }
 
+    init{
+        loadingAnimation.visibility = View.VISIBLE
+    }
 
     override fun accept(vm: ViewModel) {
         bind(vm)
@@ -64,7 +70,10 @@ class AllSightingsMapViewImpl private constructor(
             Style.MAPBOX_STREETS
         ) {
             when (vm) {
-                is ViewModel.Content -> addBoarAnnotations(vm.sightings)
+                is ViewModel.Content -> {
+                    addBoarAnnotations(vm.sightings)
+                    loadingAnimation.visibility = View.GONE
+                }
                 else -> {}
             }
         }

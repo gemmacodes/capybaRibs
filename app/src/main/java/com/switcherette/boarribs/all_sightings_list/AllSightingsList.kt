@@ -11,14 +11,14 @@ import io.reactivex.Single
 
 interface AllSightingsList : Rib, Connectable<Input, Output> {
 
-    interface Dependency: CanProvideDialogLauncher {
+    interface Dependency {
         val sightingsDataSource: SightingsDataSource
     }
 
     sealed class Input
 
     sealed class Output {
-        data class SightingSelected(val id: String) : Output()
+        data class SightingDetailsRequested(val id: String) : Output()
     }
 
     class Customisation(

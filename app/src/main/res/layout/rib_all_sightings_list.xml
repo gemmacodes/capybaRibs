@@ -15,6 +15,37 @@ android:layout_marginVertical="30dp">
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clAddMap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#B3BCAAA4" />
+
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/cardAnimation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/shapesfloating" />
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/ivLoading"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/dancingboar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 

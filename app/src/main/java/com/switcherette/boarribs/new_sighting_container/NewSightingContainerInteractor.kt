@@ -11,7 +11,6 @@ import com.badoo.ribs.minimal.reactive.Cancellable
 import com.badoo.ribs.routing.source.backstack.BackStack
 import com.badoo.ribs.routing.source.backstack.operation.replace
 import com.jakewharton.rxrelay2.PublishRelay
-import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerRouter.Configuration
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm
 import com.switcherette.boarribs.new_sighting_map.NewSightingMap
@@ -94,7 +93,7 @@ internal class NewSightingContainerInteractor(
     private val newSightingMapOutputConsumer: Consumer<NewSightingMap.Output> = Consumer {
         when (it) {
             is NewSightingMap.Output.LocationAdded -> backStack.replace(Configuration.Content.NewSightingForm(
-                Coordinates(it.longitude, it.latitude)))
+                it.coordinates))
             is NewSightingMap.Output.PermissionsRequired -> requestPermissions(it.permissions,
                 REQUEST_GEOLOCATION)
         }

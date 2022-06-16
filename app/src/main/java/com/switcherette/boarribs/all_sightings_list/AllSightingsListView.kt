@@ -1,7 +1,11 @@
 package com.switcherette.boarribs.all_sightings_list
 
+import android.opengl.Visibility
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.badoo.ribs.core.customisation.inflate
@@ -45,11 +49,14 @@ class AllSightingsListViewImpl private constructor(
     private val sightingsAdapter = SightingsAdapter {
         events.accept(Event.LoadSightingDetails(it.id))
     }
+    private val loadingAnimation: ConstraintLayout by lazy { findViewById(R.id.clAddMap) }
 
     init {
         sightingsListRv.layoutManager =
             GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
         sightingsListRv.adapter = sightingsAdapter
+        sightingsListRv.visibility = View.GONE
+        loadingAnimation.visibility = View.VISIBLE
     }
 
 
@@ -63,7 +70,14 @@ class AllSightingsListViewImpl private constructor(
     }
 
     override fun accept(vm: ViewModel) {
-
+        when(vm){
+            is ViewModel.Content -> {
+                sightingsAdapter.submitList(vm.sightings)
+                sightingsListRv.visibility = View.VISIBLE
+                loadingAnimation.visibility = View.GONE
+            }
+            ViewModel.Loading -> {}
+        }
     }
 
 

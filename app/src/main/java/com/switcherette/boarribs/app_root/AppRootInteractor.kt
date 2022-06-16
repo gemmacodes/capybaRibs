@@ -61,15 +61,15 @@ internal class AppRootInteractor(
 
     private val navBarOutputConsumer: Consumer<NavBar.Output> = Consumer {
         when (it) {
-            NavBar.Output.MapButtonClicked -> backStack.replace(Configuration.Content.AllSightingsMap)
-            NavBar.Output.ListButtonClicked -> backStack.replace(Configuration.Content.AllSightingsList)
-            NavBar.Output.AddSightingButtonClicked -> backStack.replace(Configuration.Content.NewSightingContainer)
+            NavBar.Output.MapDisplayRequested -> backStack.replace(Configuration.Content.AllSightingsMap)
+            NavBar.Output.ListDisplayRequested -> backStack.replace(Configuration.Content.AllSightingsList)
+            NavBar.Output.AddNewSightingRequested -> backStack.replace(Configuration.Content.NewSightingContainer)
         }
     }
 
     private val allSightingsListOutputConsumer: Consumer<AllSightingsList.Output> = Consumer {
         when (it) {
-            is AllSightingsList.Output.SightingSelected -> backStack.replace(
+            is AllSightingsList.Output.SightingDetailsRequested -> backStack.replace(
                 Configuration.Overlay.SightingDetails(
                     it.id
                 )
@@ -79,7 +79,7 @@ internal class AppRootInteractor(
 
     private val allSightingsMapOutputConsumer: Consumer<AllSightingsMap.Output> = Consumer {
         when (it) {
-            is AllSightingsMap.Output.SightingSelected -> backStack.pushOverlay(
+            is AllSightingsMap.Output.SightingDetailsRequested -> backStack.pushOverlay(
                 Configuration.Overlay.SightingDetails(
                     it.id
                 )

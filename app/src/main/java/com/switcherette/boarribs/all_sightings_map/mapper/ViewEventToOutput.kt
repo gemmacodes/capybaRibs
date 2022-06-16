@@ -8,6 +8,6 @@ internal object ViewEventToOutput : (Event) -> Output? {
 
     override fun invoke(event: Event): Output? =
         when (event) {
-            is LoadSightingDetails -> Output.SightingSelected(event.id)
+            is LoadSightingDetails -> Output.SightingDetailsRequested(event.id)
         }
 }
