@@ -8,6 +8,6 @@ internal object InputToWish : (NewSightingMap.Input) -> NewSightingMapFeature.Wi
 
     override fun invoke(input: NewSightingMap.Input): NewSightingMapFeature.Wish? =
         when(input){
-            is NewSightingMap.Input.PermissionsGranted -> NewSightingMapFeature.Wish.UpdatePermissions(input.permissions)
+            is NewSightingMap.Input.GrantPermissions -> NewSightingMapFeature.Wish.UpdatePermissions(input.permissions)
         }
 }

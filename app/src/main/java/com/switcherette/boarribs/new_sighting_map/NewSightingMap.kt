@@ -18,7 +18,7 @@ interface NewSightingMap : Rib, Connectable<Input, Output> {
     }
 
     sealed class Input {
-        data class PermissionsGranted(val permissions:List<String>) : Input()
+        data class GrantPermissions(val permissions:List<String>) : Input()
     }
 
     sealed class Output{

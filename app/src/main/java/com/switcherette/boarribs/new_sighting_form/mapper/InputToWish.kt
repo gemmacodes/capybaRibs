@@ -8,6 +8,6 @@ internal object InputToWish : (NewSightingForm.Input) -> NewSightingFormFeature.
 
     override fun invoke(input: NewSightingForm.Input): NewSightingFormFeature.Wish? =
         when(input){
-            is NewSightingForm.Input.PermissionsGranted -> NewSightingFormFeature.Wish.UpdatePermissions(input.permissions)
+            is NewSightingForm.Input.GrantPermissions -> NewSightingFormFeature.Wish.UpdatePermissions(input.permissions)
         }
 }

@@ -4,6 +4,7 @@ import com.badoo.ribs.builder.Builder
 import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.rx2.disposables
 import com.switcherette.boarribs.data.SightingsDataSource
+import com.switcherette.boarribs.sighting_details.dialog.SightingDetailsRibDialog
 import com.switcherette.boarribs.sighting_details.feature.SightingDetailsFeature
 
 class SightingDetailsBuilder(

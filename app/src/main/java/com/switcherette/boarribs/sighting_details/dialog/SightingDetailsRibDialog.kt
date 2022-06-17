@@ -8,16 +8,20 @@ import com.switcherette.boarribs.R
 import com.switcherette.boarribs.sighting_details.SightingDetails
 import com.switcherette.boarribs.sighting_details.SightingDetailsBuilder
 
+
 class SightingDetailsRibDialog(
     sightingDetailsBuilder: SightingDetailsBuilder,
     sightingId: String
-) : Dialog<Dialog.Event>({
+) : Dialog<Dialog.Event>(
+    {
     title = Text.Resource(R.string.sighting_details)
     ribFactory {
         sightingDetailsBuilder.build(it, SightingDetails.BuildParams(sightingId))
     }
     buttons {
-        negative(Text.Plain("Back"), Negative)
+        positive(Text.Plain("OK"), Event.Positive)
+        negative(Text.Plain("Back"), Event.Negative)
+        neutral(Text.Plain("Neutral"), Event.Neutral)
     }
 
     cancellationPolicy = Cancellable(
@@ -26,3 +30,5 @@ class SightingDetailsRibDialog(
     )
 
 })
+
+

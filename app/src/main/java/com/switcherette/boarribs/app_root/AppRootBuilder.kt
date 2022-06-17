@@ -3,7 +3,6 @@
 package com.switcherette.boarribs.app_root
 
 import com.badoo.ribs.android.dialog.DialogLauncher
-import com.badoo.ribs.android.permissionrequester.PermissionRequester
 import com.badoo.ribs.builder.SimpleBuilder
 import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.routing.source.RoutingSource
@@ -11,21 +10,24 @@ import com.badoo.ribs.routing.source.backstack.BackStack
 import com.switcherette.boarribs.app_root.routing.AppRootChildBuilders
 import com.switcherette.boarribs.app_root.routing.AppRootRouter
 import com.switcherette.boarribs.app_root.routing.AppRootRouter.Configuration
+import com.switcherette.boarribs.sighting_details.SightingDetails
+import com.switcherette.boarribs.sighting_details.dialog.SightingDetailsRibDialog
 
 class AppRootBuilder(
-    private val dependency: AppRoot.Dependency
+    private val dependency: AppRoot.Dependency,
 ) : SimpleBuilder<AppRoot>() {
 
     override fun build(buildParams: BuildParams<Nothing?>): AppRoot {
         val connections = AppRootChildBuilders(dependency)
         val customisation = buildParams.getOrDefault(AppRoot.Customisation())
         val backStack = backStack(buildParams)
-        val interactor = interactor(buildParams, backStack)
+        val dialogLauncher = dependency.dialogLauncher
+        val interactor = interactor(buildParams, backStack, dialogLauncher)
         val router = router(
             buildParams,
             backStack + RoutingSource.permanent(),
             connections,
-            dependency.dialogLauncher
+            dialogLauncher,
         )
 
         return node(buildParams, customisation, interactor, router)
@@ -39,29 +41,31 @@ class AppRootBuilder(
 
     private fun interactor(
         buildParams: BuildParams<*>,
-        backStack: BackStack<Configuration>
+        backStack: BackStack<Configuration>,
+        dialogLauncher: DialogLauncher,
     ) = AppRootInteractor(
         buildParams = buildParams,
-        backStack = backStack
+        backStack = backStack,
+        dialogLauncher = dialogLauncher
     )
 
     private fun router(
         buildParams: BuildParams<*>,
         routingSource: RoutingSource<Configuration>,
         builders: AppRootChildBuilders,
-        dialogLauncher: DialogLauncher
+        dialogLauncher: DialogLauncher,
     ) = AppRootRouter(
         buildParams = buildParams,
         builders = builders,
         routingSource = routingSource,
-        dialogLauncher = dialogLauncher
+        dialogLauncher = dialogLauncher,
     )
 
     private fun node(
         buildParams: BuildParams<*>,
         customisation: AppRoot.Customisation,
         interactor: AppRootInteractor,
-        router: AppRootRouter
+        router: AppRootRouter,
     ) = AppRootNode(
         buildParams = buildParams,
         viewFactory = customisation.viewFactory,

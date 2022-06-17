@@ -57,10 +57,10 @@ internal class NewSightingContainerInteractor(
             .events(this)
             .observe { event ->
                 if (event.requestCode == REQUEST_GEOLOCATION && event is PermissionRequester.RequestPermissionsEvent.RequestPermissionsResult) {
-                    NewSightingMap.Input.PermissionsGranted(event.granted)
+                    NewSightingMap.Input.GrantPermissions(event.granted)
                 }
                 if (event.requestCode == REQUEST_IMAGE_ACCESS && event is PermissionRequester.RequestPermissionsEvent.RequestPermissionsResult) {
-                    NewSightingForm.Input.PermissionsGranted(event.granted)
+                    NewSightingForm.Input.GrantPermissions(event.granted)
                 }
             }
     }
@@ -76,9 +76,9 @@ internal class NewSightingContainerInteractor(
         )
         if (result.allGranted) {
             when (requestCode) {
-                REQUEST_GEOLOCATION -> newSightingMapInputRelay.accept(NewSightingMap.Input.PermissionsGranted(
+                REQUEST_GEOLOCATION -> newSightingMapInputRelay.accept(NewSightingMap.Input.GrantPermissions(
                     result.granted))
-                REQUEST_IMAGE_ACCESS -> newSightingFormInputRelay.accept(NewSightingForm.Input.PermissionsGranted(
+                REQUEST_IMAGE_ACCESS -> newSightingFormInputRelay.accept(NewSightingForm.Input.GrantPermissions(
                     result.granted))
             }
         } else {

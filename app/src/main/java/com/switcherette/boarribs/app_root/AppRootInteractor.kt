@@ -4,32 +4,35 @@ import androidx.lifecycle.Lifecycle
 import com.badoo.mvicore.android.lifecycle.createDestroy
 import com.badoo.mvicore.android.lifecycle.startStop
 import com.badoo.ribs.android.dialog.DialogLauncher
+import com.badoo.ribs.android.subscribe
 import com.badoo.ribs.clienthelper.childaware.whenChildBuilt
 import com.badoo.ribs.clienthelper.interactor.Interactor
 import com.badoo.ribs.core.modality.BuildParams
+import com.badoo.ribs.minimal.reactive.Cancellable
 import com.badoo.ribs.routing.source.backstack.BackStack
 import com.badoo.ribs.routing.source.backstack.operation.pushOverlay
 import com.badoo.ribs.routing.source.backstack.operation.replace
+import com.badoo.ribs.rx2.adapter.rx2
 import com.switcherette.boarribs.all_sightings_list.AllSightingsList
 import com.switcherette.boarribs.all_sightings_map.AllSightingsMap
 import com.switcherette.boarribs.app_root.routing.AppRootRouter.Configuration
 import com.switcherette.boarribs.nav_bar.NavBar
 import com.switcherette.boarribs.new_sighting_container.NewSightingContainer
+import com.switcherette.boarribs.sighting_details.SightingDetails
+import com.switcherette.boarribs.sighting_details.dialog.SightingDetailsRibDialog
 import io.reactivex.functions.Consumer
 
 internal class AppRootInteractor(
     buildParams: BuildParams<*>,
     private val backStack: BackStack<Configuration>,
+    private val dialogLauncher: DialogLauncher,
 ) : Interactor<AppRoot, AppRootView>(
     buildParams = buildParams
 ) {
 
-    private lateinit var dialogLauncher: DialogLauncher
+    private lateinit var dialog: SightingDetailsRibDialog
 
     override fun onCreate(nodeLifecycle: Lifecycle) {
-        nodeLifecycle.createDestroy {
-            dialogLauncher = node.integrationPoint.dialogLauncher
-        }
 
         whenChildBuilt<NavBar>(nodeLifecycle) { commonLifecycle, child ->
             commonLifecycle.createDestroy {
@@ -55,8 +58,9 @@ internal class AppRootInteractor(
 
     override fun onViewCreated(view: AppRootView, viewLifecycle: Lifecycle) {
         viewLifecycle.startStop {
-            //bind(dialog.rx2() to dialogEventConsumer)
+            bind(dialog.rx2() to dialogEventConsumer)
         }
+
     }
 
     private val navBarOutputConsumer: Consumer<NavBar.Output> = Consumer {
@@ -97,12 +101,12 @@ internal class AppRootInteractor(
         }
 
 
-//    private val dialogEventConsumer: Consumer<SightingDetailsRibDialog.Event> = Consumer {
-//        when (it) {
-//            is SightingDetailsRibDialog.Event.NegativeButtonClicked -> dialogLauncher.hide(dialog)
-//            else -> {}
-//        }
-//    }
+    private val dialogEventConsumer: Consumer<SightingDetailsRibDialog.Event> = Consumer {
+        when (it) {
+            is SightingDetailsRibDialog.Event.NegativeButtonClicked -> dialogLauncher.hide(dialog)
+            else -> {}
+        }
+    }
 
 
 }
