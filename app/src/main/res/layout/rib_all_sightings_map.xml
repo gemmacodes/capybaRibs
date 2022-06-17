@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rib_all_sightings_map"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -13,7 +14,7 @@
         android:background="@color/pale_pink"
         android:paddingHorizontal="10dp"
         android:paddingVertical="5dp"
-        android:text="X boars reported so far..."
+        tools:text="@string/reported_capybaras"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -27,29 +28,14 @@
         mapbox:layout_constraintBottom_toBottomOf="parent"
         mapbox:layout_constraintStart_toStartOf="parent"
         mapbox:layout_constraintTop_toBottomOf="@id/tvWelcome"
-        mapbox:mapbox_cameraTargetLat="41.414494"
-        mapbox:mapbox_cameraTargetLng="2.152695" />
+        mapbox:mapbox_cameraTargetLat="37.4221"
+        mapbox:mapbox_cameraTargetLng="-122.0841" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clAddMap"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#B3BCAAA4" />
-
-
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/cardAnimation"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:scaleType="fitXY"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true"
-        app:lottie_rawRes="@raw/shapesfloating" />
+        android:layout_height="match_parent"/>
+        <!--android:background="#B3BCAAA4" />-->
 
     <pl.droidsonroids.gif.GifImageView
         android:id="@+id/ivLoading"

@@ -2,8 +2,8 @@ package com.switcherette.boarribs.all_sightings_map
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.annotation.LayoutRes
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.badoo.ribs.core.customisation.inflate
 import com.badoo.ribs.core.view.AndroidRibView
 import com.badoo.ribs.core.view.RibView
@@ -23,6 +23,7 @@ import com.switcherette.boarribs.data.Sighting
 import com.switcherette.boarribs.utils.bitmapFromDrawableRes
 import io.reactivex.ObservableSource
 import io.reactivex.functions.Consumer
+import pl.droidsonroids.gif.GifImageView
 
 interface AllSightingsMapView : RibView,
     ObservableSource<Event>,
@@ -34,7 +35,9 @@ interface AllSightingsMapView : RibView,
 
     sealed class ViewModel {
         object Loading : ViewModel()
-        data class Content(val sightings: List<Sighting>) : ViewModel()
+        data class Content(
+            val sightings: List<Sighting>,
+            ) : ViewModel()
     }
 
     fun interface Factory : ViewFactory<AllSightingsMapView>
@@ -50,11 +53,9 @@ class AllSightingsMapViewImpl private constructor(
     Consumer<ViewModel> {
 
     private val sightingsMap: MapView by lazy { findViewById(R.id.mapView) }
-    private val loadingAnimation: ConstraintLayout by lazy { findViewById(R.id.clAddMap) }
+    private val sightingsReported: TextView by lazy { findViewById(R.id.tvWelcome) }
+    private val loadingAnimation: GifImageView by lazy { findViewById(R.id.ivLoading) }
 
-    init{
-        loadingAnimation.visibility = View.VISIBLE
-    }
 
     override fun accept(vm: ViewModel) {
         bind(vm)
@@ -73,10 +74,16 @@ class AllSightingsMapViewImpl private constructor(
                 is ViewModel.Content -> {
                     addBoarAnnotations(vm.sightings)
                     loadingAnimation.visibility = View.GONE
+                    sightingsReported.text = vm.sightings.size.toString() + " " + context.getString(R.string.reported_capybaras)
                 }
-                else -> {}
+                is ViewModel.Loading -> {
+                    loadingAnimation.visibility = View.VISIBLE
+                    sightingsReported.text = context.getString(R.string.loading)
+                }
             }
         }
+
+
     }
 
 
@@ -85,26 +92,22 @@ class AllSightingsMapViewImpl private constructor(
         val pointAnnotationManager = annotationApi.createPointAnnotationManager()
         sightings?.map { sighting ->
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
-                .withPoint(Point.fromLngLat(sighting.coordinates.longitude, sighting.coordinates.latitude))
+                .withPoint(Point.fromLngLat(sighting.coordinates.longitude,
+                    sighting.coordinates.latitude))
                 .withIconImage(
                     bitmapFromDrawableRes(
                         context,
-                        R.drawable.boar
+                        R.drawable.capibara
                     )!!
                 )
-            pointAnnotationManager.addClickListener{
+                .withIconSize(0.2)
+            pointAnnotationManager.addClickListener {
                 run { events.accept(Event.LoadSightingDetails(sighting.id)) }
                 true
             }
             pointAnnotationManager.create(pointAnnotationOptions)
         }
     }
-
-
-//    private fun addMapBounds(sightings: List<Sighting>?){
-//        val coords = sightings?.map { sighting -> sighting.coordinates }
-//        val bounds = sightingsMap.getMapboxMap().coordinateBoundsForCamera(x)
-
 
 
     class Factory(

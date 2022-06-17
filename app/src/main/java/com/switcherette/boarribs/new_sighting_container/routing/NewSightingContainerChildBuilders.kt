@@ -1,6 +1,8 @@
 package com.switcherette.boarribs.new_sighting_container.routing
 
 
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.switcherette.boarribs.new_sighting_container.NewSightingContainer
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm
 import com.switcherette.boarribs.new_sighting_form.NewSightingFormBuilder

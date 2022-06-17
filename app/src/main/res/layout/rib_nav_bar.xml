@@ -7,7 +7,7 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:ignore="HardcodedText">
 
-<androidx.appcompat.widget.AppCompatButton
+<com.google.android.material.button.MaterialButton
     android:id="@+id/mapButton"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
@@ -21,7 +21,7 @@ tools:ignore="HardcodedText">
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent" />
 
-<androidx.appcompat.widget.AppCompatButton
+<com.google.android.material.button.MaterialButton
     android:id="@+id/listButton"
     android:layout_width="0dp"
     android:layout_height="wrap_content"
@@ -35,7 +35,7 @@ tools:ignore="HardcodedText">
     app:layout_constraintStart_toEndOf="@id/mapButton"
     app:layout_constraintTop_toTopOf="parent" />
 
-<androidx.appcompat.widget.AppCompatButton
+<com.google.android.material.button.MaterialButton
     android:id="@+id/addButton"
     android:layout_width="0dp"
     android:layout_height="wrap_content"

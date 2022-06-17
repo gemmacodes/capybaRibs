@@ -99,9 +99,10 @@ class SightingDetailsViewImpl private constructor(
             .withIconImage(
                 bitmapFromDrawableRes(
                     context,
-                    R.drawable.boar
+                    R.drawable.capibara
                 )!!
             )
+            .withIconSize(0.2)
         pointAnnotationManager.create(pointAnnotationOptions)
     }
 }

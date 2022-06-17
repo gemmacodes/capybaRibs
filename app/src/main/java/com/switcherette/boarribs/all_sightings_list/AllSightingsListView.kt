@@ -19,6 +19,7 @@ import com.switcherette.boarribs.all_sightings_list.AllSightingsListView.ViewMod
 import com.switcherette.boarribs.data.Sighting
 import io.reactivex.ObservableSource
 import io.reactivex.functions.Consumer
+import pl.droidsonroids.gif.GifImageView
 
 interface AllSightingsListView : RibView,
     ObservableSource<Event>,
@@ -49,16 +50,23 @@ class AllSightingsListViewImpl private constructor(
     private val sightingsAdapter = SightingsAdapter {
         events.accept(Event.LoadSightingDetails(it.id))
     }
-    private val loadingAnimation: ConstraintLayout by lazy { findViewById(R.id.clAddMap) }
 
-    init {
-        sightingsListRv.layoutManager =
-            GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-        sightingsListRv.adapter = sightingsAdapter
-        sightingsListRv.visibility = View.GONE
-        loadingAnimation.visibility = View.VISIBLE
+    private val loadingAnimation: GifImageView by lazy { findViewById(R.id.ivLoading) }
+
+    override fun accept(vm: ViewModel) {
+        when(vm){
+            is ViewModel.Content -> {
+                sightingsListRv.layoutManager =
+                    GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
+                sightingsListRv.adapter = sightingsAdapter
+                sightingsAdapter.submitList(vm.sightings)
+                loadingAnimation.visibility = View.GONE
+            }
+            ViewModel.Loading -> {
+                loadingAnimation.visibility = View.VISIBLE
+            }
+        }
     }
-
 
     class Factory(
         @LayoutRes private val layoutRes: Int = R.layout.rib_all_sightings_list
@@ -68,17 +76,5 @@ class AllSightingsListViewImpl private constructor(
                 context.inflate(layoutRes)
             )
     }
-
-    override fun accept(vm: ViewModel) {
-        when(vm){
-            is ViewModel.Content -> {
-                sightingsAdapter.submitList(vm.sightings)
-                sightingsListRv.visibility = View.VISIBLE
-                loadingAnimation.visibility = View.GONE
-            }
-            ViewModel.Loading -> {}
-        }
-    }
-
 
 }

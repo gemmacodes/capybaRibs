@@ -1,31 +1,20 @@
 package com.switcherette.boarribs.new_sighting_form.feature
 
 import android.Manifest
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.FileProvider
 import com.badoo.mvicore.element.Actor
 import com.badoo.mvicore.element.NewsPublisher
 import com.badoo.mvicore.element.PostProcessor
 import com.badoo.mvicore.element.Reducer
 import com.badoo.mvicore.feature.BaseFeature
 import com.badoo.ribs.android.activitystarter.ActivityStarter
-import com.badoo.ribs.android.requestcode.RequestCodeClient
-import com.badoo.ribs.minimal.reactive.Source
-import com.badoo.ribs.rx2.adapter.rx2
-import com.switcherette.boarribs.BuildConfig
 import com.switcherette.boarribs.R
 import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.data.Sighting
 import com.switcherette.boarribs.data.SightingsDataSource
-import com.switcherette.boarribs.new_sighting_form.NewSightingFormView
 import com.switcherette.boarribs.new_sighting_form.feature.NewSightingFormFeature.*
 import io.reactivex.Observable
-import java.io.File
-import java.text.SimpleDateFormat
 import java.util.*
 
 internal class NewSightingFormFeature(
@@ -35,7 +24,7 @@ internal class NewSightingFormFeature(
 ) : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
     wishToAction = Action::ExecuteWish,
-    actor = ActorImpl(dataSource, coordinates, activityStarter),
+    actor = ActorImpl(dataSource, coordinates),
     reducer = ReducerImpl(),
     newsPublisher = NewsPublisherImpl(),
     postProcessor = PostProcessorImpl()
@@ -60,8 +49,8 @@ internal class NewSightingFormFeature(
     sealed class Wish {
         data class SaveSighting(
             val heading: String?,
-            val adults: Int?,
-            val piglets: Int?,
+            val adults: String?,
+            val piglets: String?,
             val interaction: Boolean,
             val comments: String?,
         ) : Wish()
@@ -77,6 +66,7 @@ internal class NewSightingFormFeature(
 
     sealed class Effect {
         object SightingSaved : Effect()
+        object SightingNotSaved : Effect()
         data class PhotoUriUpdated(val uri: String) : Effect()
         data class PermissionsUpdated(val status: State.CameraPermissionStatus) : Effect()
         object PermissionsNotGranted : Effect()
@@ -85,13 +75,13 @@ internal class NewSightingFormFeature(
 
     sealed class News {
         object SightingSaved : News()
+        object SightingNotSaved : News()
         data class PermissionsRequired(val permissions: List<String>) : News()
     }
 
     class ActorImpl(
         private val dataSource: SightingsDataSource,
         private val coordinates: Coordinates,
-        private val activityStarter: ActivityStarter,
     ) : Actor<State, Action, Effect> {
         override fun invoke(state: State, action: Action): Observable<Effect> =
             when (action) {
@@ -115,26 +105,30 @@ internal class NewSightingFormFeature(
         private fun saveForm(
             dataSource: SightingsDataSource,
             wish: Wish.SaveSighting,
-            state: State
+            state: State,
         ): Observable<Effect> {
-            dataSource.saveSighting(
-                Sighting(
-                    id = UUID.randomUUID().toString(),
-                    heading = wish.heading!!,
-                    adults = wish.adults!!,
-                    piglets = wish.piglets!!,
-                    interaction = wish.interaction,
-                    comments = wish.comments!!,
-                    coordinates = coordinates,
-                    timestamp = System.currentTimeMillis(),
-                    picture = state.picture
-                        ?: Uri.parse("android.resource://com.switcherette.boarribs/" + R.drawable.boar_img)
-                            .toString()
-                )
-            )
-            return Observable.just(Effect.SightingSaved)
+            return if (
+                wish.heading.isNullOrEmpty() || wish.adults.isNullOrEmpty() || wish.piglets.isNullOrEmpty()
+            ) {
+                Observable.just(Effect.SightingNotSaved)
+            } else {
+                dataSource.saveSighting(
+                    Sighting(
+                        id = UUID.randomUUID().toString(),
+                        heading = wish.heading,
+                        adults = wish.adults.toInt(),
+                        piglets = wish.piglets.toInt(),
+                        interaction = wish.interaction,
+                        comments = wish.comments!!,
+                        coordinates = coordinates,
+                        timestamp = System.currentTimeMillis(),
+                        picture = state.picture
+                            ?: Uri.parse("android.resource://com.switcherette.boarribs/" + R.drawable.capybara)
+                                .toString()
+                    ))
+                Observable.just(Effect.SightingSaved)
+            }
         }
-
     }
 
 
@@ -142,6 +136,7 @@ internal class NewSightingFormFeature(
         override fun invoke(state: State, effect: Effect): State =
             when (effect) {
                 is Effect.SightingSaved -> state
+                is Effect.SightingNotSaved -> state
                 is Effect.PhotoUriUpdated -> state.copy(picture = effect.uri)
                 is Effect.PermissionsNotGranted -> state
                 is Effect.PermissionsUpdated -> state.copy(cameraPermissionStatus = effect.status)
@@ -152,7 +147,8 @@ internal class NewSightingFormFeature(
     class NewsPublisherImpl : NewsPublisher<Action, Effect, State, News> {
         override fun invoke(action: Action, effect: Effect, state: State): News? =
             when (effect) {
-                Effect.SightingSaved -> News.SightingSaved
+                is Effect.SightingSaved -> News.SightingSaved
+                is Effect.SightingNotSaved -> News.SightingNotSaved
                 is Effect.PermissionsNotGranted -> News.PermissionsRequired(
                     IMAGE_CAPTURE_PERMISSIONS)
                 is Effect.PermissionsUpdated -> null

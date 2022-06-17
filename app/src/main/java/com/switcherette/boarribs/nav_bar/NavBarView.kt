@@ -7,6 +7,7 @@ import com.badoo.ribs.core.view.RibView
 import com.badoo.ribs.core.customisation.inflate
 import com.badoo.ribs.core.view.AndroidRibView
 import com.badoo.ribs.core.view.ViewFactory
+import com.google.android.material.button.MaterialButton
 import com.switcherette.boarribs.nav_bar.NavBarView.Event
 import com.jakewharton.rxrelay2.PublishRelay
 import com.switcherette.boarribs.R
@@ -33,9 +34,9 @@ class NavBarViewImpl private constructor(
     ObservableSource<Event> by events
 {
 
-    private val mapButton: AppCompatButton by lazy { findViewById(R.id.mapButton) }
-    private val listButton: AppCompatButton by lazy { findViewById(R.id.listButton) }
-    private val addButton: AppCompatButton by lazy { findViewById(R.id.addButton) }
+    private val mapButton: MaterialButton by lazy { findViewById(R.id.mapButton) }
+    private val listButton: MaterialButton by lazy { findViewById(R.id.listButton) }
+    private val addButton: MaterialButton by lazy { findViewById(R.id.addButton) }
 
     init {
         setListeners()

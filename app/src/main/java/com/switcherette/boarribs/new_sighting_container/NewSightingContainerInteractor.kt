@@ -1,6 +1,7 @@
 package com.switcherette.boarribs.new_sighting_container
 
 import androidx.lifecycle.Lifecycle
+import com.badoo.binder.using
 import com.badoo.mvicore.android.lifecycle.createDestroy
 import com.badoo.ribs.android.permissionrequester.PermissionRequester
 import com.badoo.ribs.android.subscribe
@@ -11,6 +12,7 @@ import com.badoo.ribs.minimal.reactive.Cancellable
 import com.badoo.ribs.routing.source.backstack.BackStack
 import com.badoo.ribs.routing.source.backstack.operation.replace
 import com.jakewharton.rxrelay2.PublishRelay
+import com.switcherette.boarribs.new_sighting_container.mapper.FormOutputToContainerOutput
 import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerRouter.Configuration
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm
 import com.switcherette.boarribs.new_sighting_map.NewSightingMap
@@ -40,6 +42,7 @@ internal class NewSightingContainerInteractor(
             commonLifecycle.createDestroy {
                 bind(newSightingFormInputRelay to child.input)
                 bind(child.output to newSightingFormOutputConsumer)
+                bind(child.output to rib.output using FormOutputToContainerOutput)
             }
         }
 
@@ -101,9 +104,9 @@ internal class NewSightingContainerInteractor(
 
     private val newSightingFormOutputConsumer: Consumer<NewSightingForm.Output> = Consumer {
         when (it) {
-            is NewSightingForm.Output.SightingAdded -> NewSightingContainer.Output.SightingAdded
             is NewSightingForm.Output.PermissionsRequired -> requestPermissions(it.permissions,
                 REQUEST_IMAGE_ACCESS)
+            else -> {}
         }
     }
 
