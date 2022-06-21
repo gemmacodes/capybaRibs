@@ -10,7 +10,7 @@ internal object ViewEventToWish : (Event) -> Wish? {
             is Event.SaveSighting -> Wish.SaveSighting(
                 event.heading,
                 event.adults,
-                event.piglets,
+                event.pups,
                 event.interaction,
                 event.comments
             )

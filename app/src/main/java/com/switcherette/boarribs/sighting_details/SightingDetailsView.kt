@@ -78,7 +78,7 @@ class SightingDetailsViewImpl private constructor(
                     tvComments.text = vm.sighting.comments
 
                     chipAdults.text = "${vm.sighting.adults} adults"
-                    chipPiglets.text = "${vm.sighting.piglets} piglets"
+                    chipPups.text = "${vm.sighting.pups} pups"
                     chipInteracting.text =
                         "${if (vm.sighting.interaction) "interacting" else "not interacting"}"
 

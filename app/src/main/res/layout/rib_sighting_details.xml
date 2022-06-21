@@ -10,7 +10,7 @@
         android:id="@+id/ivPhoto"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:contentDescription="Boar"
+        android:text="Boar"
         android:foreground="#96323232"
         android:foregroundTintMode="src_atop"
         android:scaleType="centerCrop"
@@ -18,7 +18,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/boar_img" />
+        app:srcCompat="@drawable/boar_img"
+        android:contentDescription="@string/sighting_photo" />
 
     <TextView
         android:id="@+id/tvHeading"
@@ -26,7 +27,7 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="10dp"
         android:paddingVertical="10dp"
-        android:text="X BOARS / Y PIGLETS"
+        android:text="X ADULTS / Y PUPS"
         android:textAppearance="?attr/textAppearanceHeadline6"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,18 +42,18 @@
         android:layout_marginStart="20dp"
         android:backgroundTint="@color/green_200"
         android:text="# adults"
-        app:layout_constraintEnd_toStartOf="@id/chipPiglets"
+        app:layout_constraintEnd_toStartOf="@id/chipPups"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ivPhoto" />
 
     <com.google.android.material.chip.Chip
-        android:id="@+id/chipPiglets"
+        android:id="@+id/chipPups"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"
         android:layout_marginVertical="10dp"
         android:backgroundTint="@color/green_200"
-        android:text="# piglets"
+        android:text="# pups"
         app:layout_constraintEnd_toStartOf="@id/chipInteracting"
         app:layout_constraintStart_toEndOf="@id/chipAdults"
         app:layout_constraintTop_toBottomOf="@id/ivPhoto" />
@@ -65,7 +66,7 @@
         android:layout_marginVertical="10dp"
         android:backgroundTint="@color/brown_200"
         android:text="Interacting"
-        app:layout_constraintStart_toEndOf="@id/chipPiglets"
+        app:layout_constraintStart_toEndOf="@id/chipPups"
         app:layout_constraintTop_toBottomOf="@id/ivPhoto" />
 
     <TextView
@@ -112,7 +113,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tvDate"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/calendar_icon" />
 
         <TextView
             android:id="@+id/tvDate"
@@ -137,7 +139,8 @@
             android:src="@android:drawable/ic_menu_compass"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tvLocation"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/location_icon" />
 
         <TextView
             android:id="@+id/tvLocation"

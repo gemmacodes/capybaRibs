@@ -14,7 +14,7 @@
         android:background="@color/pale_pink"
         android:paddingHorizontal="10dp"
         android:paddingVertical="5dp"
-        android:text="Provide sighting information"
+        android:text="@string/provide_sighting_information"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="30dp"
         android:layout_marginVertical="20dp"
-        android:hint="Title">
+        android:hint="@string/title">
 
         <EditText
             android:id="@+id/etHeading"
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="25dp"
             android:layout_weight="1"
-            android:hint="# Adult boars">
+            android:hint="@string/adults">
 
             <EditText
                 android:id="@+id/et_numAdults"
@@ -72,10 +72,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="# Piglets">
+            android:hint="@string/pups">
 
             <EditText
-                android:id="@+id/et_numPiglets"
+                android:id="@+id/et_numPups"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:gravity="start"
-            android:text="Interacting with the environment?"
+            android:text="@string/interacting_with_the_environment"
             android:textSize="18sp"
 
             />
@@ -118,7 +118,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="30dp"
         android:layout_marginVertical="10dp"
-        android:hint="Description / comments">
+        android:hint="@string/description_comments">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/et_comment"
@@ -143,7 +143,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_marginHorizontal="30dp"
-            android:text="Add picture"
+            android:text="@string/add_picture"
             app:icon="@android:drawable/ic_menu_camera" />
 
         <ImageView
@@ -151,7 +151,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_gravity="end"
-            android:contentDescription="thumbnail"
+            android:contentDescription="@string/thumbnail"
             android:maxWidth="50dp"
             android:maxHeight="50dp"
             android:scaleType="centerCrop" />

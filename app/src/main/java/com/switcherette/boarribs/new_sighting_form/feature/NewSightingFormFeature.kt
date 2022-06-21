@@ -34,7 +34,7 @@ internal class NewSightingFormFeature(
         val id: String? = null,
         val heading: String? = null,
         val adults: Int? = null,
-        val piglets: Int? = null,
+        val pups: Int? = null,
         val interaction: Boolean = false,
         val comments: String? = null,
         val coordinates: Coordinates? = null,
@@ -50,7 +50,7 @@ internal class NewSightingFormFeature(
         data class SaveSighting(
             val heading: String?,
             val adults: String?,
-            val piglets: String?,
+            val pups: String?,
             val interaction: Boolean,
             val comments: String?,
         ) : Wish()
@@ -108,7 +108,7 @@ internal class NewSightingFormFeature(
             state: State,
         ): Observable<Effect> {
             return if (
-                wish.heading.isNullOrEmpty() || wish.adults.isNullOrEmpty() || wish.piglets.isNullOrEmpty()
+                wish.heading.isNullOrEmpty() || wish.adults.isNullOrEmpty() || wish.pups.isNullOrEmpty()
             ) {
                 Observable.just(Effect.SightingNotSaved)
             } else {
@@ -117,7 +117,7 @@ internal class NewSightingFormFeature(
                         id = UUID.randomUUID().toString(),
                         heading = wish.heading,
                         adults = wish.adults.toInt(),
-                        piglets = wish.piglets.toInt(),
+                        pups = wish.pups.toInt(),
                         interaction = wish.interaction,
                         comments = wish.comments!!,
                         coordinates = coordinates,

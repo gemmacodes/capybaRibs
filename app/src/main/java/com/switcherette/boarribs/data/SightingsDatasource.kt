@@ -28,7 +28,7 @@ data class Sighting(
     @PrimaryKey val id: String,
     @ColumnInfo(name = "heading") val heading: String,
     @ColumnInfo(name = "adults") val adults: Int,
-    @ColumnInfo(name = "piglets") val piglets: Int,
+    @ColumnInfo(name = "pups") val pups: Int,
     @ColumnInfo(name = "interaction") val interaction: Boolean,
     @ColumnInfo(name = "comments") val comments: String,
     @Embedded(prefix = "coordinates") val coordinates: Coordinates,

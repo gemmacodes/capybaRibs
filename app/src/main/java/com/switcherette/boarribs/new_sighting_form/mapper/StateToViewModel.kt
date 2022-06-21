@@ -10,7 +10,7 @@ internal object StateToViewModel : (NewSightingFormFeature.State) -> ViewModel {
         return ViewModel(
             heading = state.heading,
             adults= state.adults,
-            piglets = state.piglets,
+            pups = state.pups,
             interaction = state.interaction,
             comments = state.comments,
             picture = state.picture,

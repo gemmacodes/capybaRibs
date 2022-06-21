@@ -27,7 +27,7 @@ interface NewSightingFormView : RibView,
         data class SaveSighting(
             val heading: String?,
             val adults: String?,
-            val piglets: String?,
+            val pups: String?,
             val interaction: Boolean,
             val comments: String?,
             val picture: String?,
@@ -40,7 +40,7 @@ interface NewSightingFormView : RibView,
     data class ViewModel(
         val heading: String?,
         val adults: Int?,
-        val piglets: Int?,
+        val pups: Int?,
         val interaction: Boolean,
         val comments: String?,
         val picture: String?,
@@ -75,7 +75,7 @@ class NewSightingFormViewImpl private constructor(
             fabAddForm.setOnClickListener {
                 val heading = etHeading.text.toString().trim()
                 val adults = etNumAdults.text.toString().trim()
-                val piglets = etNumPiglets.text.toString().trim()
+                val piglets = etNumPups.text.toString().trim()
                 val interaction = btnSEnvironment.isChecked
                 var comments = etComment.text.toString().trim()
                 if (comments.isEmpty()) {

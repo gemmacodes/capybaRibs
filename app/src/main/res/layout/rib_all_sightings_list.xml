@@ -51,7 +51,7 @@
         android:id="@+id/ivLoading"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/dancingboar"
+        android:src="@drawable/capydancing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
