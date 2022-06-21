@@ -14,7 +14,7 @@ internal object ViewEventToWish : (Event) -> Wish? {
                 event.interaction,
                 event.comments
             )
-            is Event.TakePhoto -> TODO()
+            is Event.CameraRequested -> Wish.RequestCameraStart
             is Event.UpdatePhotoURL -> TODO()
         }
 }

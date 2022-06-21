@@ -8,13 +8,7 @@ internal object StateToViewModel : (NewSightingFormFeature.State) -> ViewModel {
 
     override fun invoke(state: NewSightingFormFeature.State): ViewModel {
         return ViewModel(
-            heading = state.heading,
-            adults= state.adults,
-            pups = state.pups,
-            interaction = state.interaction,
-            comments = state.comments,
             picture = state.picture,
-            showDialog = state.showDialog
         )
     }
 }

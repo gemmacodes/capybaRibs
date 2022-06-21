@@ -1,5 +1,7 @@
 package com.switcherette.boarribs.new_sighting_map
 
+import android.opengl.Visibility
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.appcompat.content.res.AppCompatResources
@@ -24,6 +26,7 @@ import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.switcherette.boarribs.R
 import com.switcherette.boarribs.data.Coordinates
+import com.switcherette.boarribs.data.Sighting
 import com.switcherette.boarribs.databinding.RibNewSightingMapBinding
 import com.switcherette.boarribs.new_sighting_map.NewSightingMapView.Event
 import com.switcherette.boarribs.new_sighting_map.NewSightingMapView.ViewModel
@@ -45,6 +48,7 @@ interface NewSightingMapView : RibView,
     data class ViewModel(
         val boarCoordinates: Coordinates,
     )
+
 
     fun interface Factory : ViewFactory<NewSightingMapView>
 }
@@ -99,7 +103,6 @@ class NewSightingMapViewImpl private constructor(
                         vm.boarCoordinates.latitude))
                     .build()
             )
-
             updateBoarLocation(vm.boarCoordinates)
         }
     }
@@ -120,7 +123,10 @@ class NewSightingMapViewImpl private constructor(
 
             pointAnnotationManager.addDragListener(dragListener)
             pointAnnotationManager.create(pointAnnotationOptions)
-        }.also { boarAnnotation = it }
+        }.also {
+            boarAnnotation = it
+            binding.ivLoading.visibility = View.GONE
+        }
 
 /*
 interpolate {

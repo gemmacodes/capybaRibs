@@ -15,11 +15,12 @@
     <string name="location_icon">location icon</string>
     <string name="sighting_photo">sighting photo</string>
     <string name="interacting_with_the_environment">Interacting with the environment?</string>
-    <string name="pups"># Pups</string>
+    <string name="pups"># pups</string>
     <string name="adults"># adults</string>
     <string name="title">Title</string>
     <string name="provide_sighting_information">Provide sighting information</string>
     <string name="description_comments">Description / comments</string>
     <string name="thumbnail">thumbnail</string>
     <string name="add_picture">Add picture</string>
+    <string name="first_drag_the_capybara_to_the_sighting">First, drag the capybara to the sighting spot</string>
 </resources>

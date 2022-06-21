@@ -10,8 +10,11 @@ import com.badoo.ribs.clienthelper.interactor.Interactor
 import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.minimal.reactive.Cancellable
 import com.badoo.ribs.routing.source.backstack.BackStack
+import com.badoo.ribs.routing.source.backstack.operation.pop
 import com.badoo.ribs.routing.source.backstack.operation.replace
 import com.jakewharton.rxrelay2.PublishRelay
+import com.switcherette.boarribs.camera.Camera
+import com.switcherette.boarribs.new_sighting_container.mapper.CameraOutputToContainerOutput
 import com.switcherette.boarribs.new_sighting_container.mapper.FormOutputToContainerOutput
 import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerRouter.Configuration
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm
@@ -29,6 +32,7 @@ internal class NewSightingContainerInteractor(
     private var cancellable: Cancellable? = null
     private val newSightingMapInputRelay = PublishRelay.create<NewSightingMap.Input>()
     private val newSightingFormInputRelay = PublishRelay.create<NewSightingForm.Input>()
+    private val cameraInputRelay = PublishRelay.create<Camera.Input>()
 
     override fun onCreate(nodeLifecycle: Lifecycle) {
 
@@ -43,6 +47,13 @@ internal class NewSightingContainerInteractor(
                 bind(newSightingFormInputRelay to child.input)
                 bind(child.output to newSightingFormOutputConsumer)
                 bind(child.output to rib.output using FormOutputToContainerOutput)
+            }
+        }
+        whenChildBuilt<Camera>(nodeLifecycle) { commonLifecycle, child ->
+            commonLifecycle.createDestroy {
+                bind(cameraInputRelay to child.input)
+                bind(child.output to cameraOutputConsumer)
+                bind(child.output to rib.output using CameraOutputToContainerOutput)
             }
         }
 
@@ -63,7 +74,7 @@ internal class NewSightingContainerInteractor(
                     NewSightingMap.Input.GrantPermissions(event.granted)
                 }
                 if (event.requestCode == REQUEST_IMAGE_ACCESS && event is PermissionRequester.RequestPermissionsEvent.RequestPermissionsResult) {
-                    NewSightingForm.Input.GrantPermissions(event.granted)
+                    Camera.Input.GrantPermissions(event.granted)
                 }
             }
     }
@@ -81,7 +92,7 @@ internal class NewSightingContainerInteractor(
             when (requestCode) {
                 REQUEST_GEOLOCATION -> newSightingMapInputRelay.accept(NewSightingMap.Input.GrantPermissions(
                     result.granted))
-                REQUEST_IMAGE_ACCESS -> newSightingFormInputRelay.accept(NewSightingForm.Input.GrantPermissions(
+                REQUEST_IMAGE_ACCESS -> cameraInputRelay.accept(Camera.Input.GrantPermissions(
                     result.granted))
             }
         } else {
@@ -104,8 +115,20 @@ internal class NewSightingContainerInteractor(
 
     private val newSightingFormOutputConsumer: Consumer<NewSightingForm.Output> = Consumer {
         when (it) {
-            is NewSightingForm.Output.PermissionsRequired -> requestPermissions(it.permissions,
+            is NewSightingForm.Output.CameraRequested -> backStack.replace(Configuration.Content.Camera)
+            is NewSightingForm.Output.SightingAdded -> {}
+        }
+    }
+
+
+    private val cameraOutputConsumer: Consumer<Camera.Output> = Consumer {
+        when (it) {
+            is Camera.Output.PermissionsRequired -> requestPermissions(it.permissions,
                 REQUEST_IMAGE_ACCESS)
+            is Camera.Output.PhotoTaken -> {
+                newSightingFormInputRelay.accept(NewSightingForm.Input.StorePhoto(it.filepath))
+                backStack.pop()
+            }
             else -> {}
         }
     }

@@ -13,7 +13,7 @@ import io.reactivex.Single
 
 interface NewSightingForm : Rib, Connectable<Input, Output> {
 
-    interface Dependency : CanProvideActivityStarter {
+    interface Dependency {
         val sightingsDataSource: SightingsDataSource
     }
 
@@ -22,12 +22,12 @@ interface NewSightingForm : Rib, Connectable<Input, Output> {
     )
 
     sealed class Input{
-        data class GrantPermissions(val permissions:List<String>) : Input()
+        data class StorePhoto (val filepath: String) : Input()
     }
 
     sealed class Output{
         object SightingAdded : Output()
-        data class PermissionsRequired(val permissions:List<String>) : Output()
+        object CameraRequested : Output()
     }
 
     class Customisation(

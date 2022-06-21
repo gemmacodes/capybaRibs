@@ -1,11 +1,8 @@
 package com.switcherette.boarribs.new_sighting_form.feature
 
-import android.Manifest
 import android.net.Uri
-import android.os.Build
 import com.badoo.mvicore.element.Actor
 import com.badoo.mvicore.element.NewsPublisher
-import com.badoo.mvicore.element.PostProcessor
 import com.badoo.mvicore.element.Reducer
 import com.badoo.mvicore.feature.BaseFeature
 import com.badoo.ribs.android.activitystarter.ActivityStarter
@@ -19,15 +16,13 @@ import java.util.*
 
 internal class NewSightingFormFeature(
     dataSource: SightingsDataSource,
-    coordinates: Coordinates,
-    activityStarter: ActivityStarter,
+    coordinates: Coordinates
 ) : BaseFeature<Wish, Action, Effect, State, News>(
     initialState = State(),
     wishToAction = Action::ExecuteWish,
     actor = ActorImpl(dataSource, coordinates),
     reducer = ReducerImpl(),
     newsPublisher = NewsPublisherImpl(),
-    postProcessor = PostProcessorImpl()
 ) {
 
     data class State(
@@ -40,11 +35,7 @@ internal class NewSightingFormFeature(
         val coordinates: Coordinates? = null,
         val timestamp: Long? = null,
         val picture: String? = null,
-        val cameraPermissionStatus: CameraPermissionStatus? = null,
-        val showDialog: Boolean = false,
-    ) {
-        enum class CameraPermissionStatus { GRANTED, DENIED }
-    }
+    )
 
     sealed class Wish {
         data class SaveSighting(
@@ -55,9 +46,8 @@ internal class NewSightingFormFeature(
             val comments: String?,
         ) : Wish()
 
-        object ShowImageSourceDialog : Wish()
+        object RequestCameraStart : Wish()
         data class UpdatePhotoUri(val uri: String) : Wish()
-        data class UpdatePermissions(val granted: List<String>) : Wish()
     }
 
     sealed class Action {
@@ -65,18 +55,16 @@ internal class NewSightingFormFeature(
     }
 
     sealed class Effect {
+        object CameraStartRequested : Effect()
         object SightingSaved : Effect()
         object SightingNotSaved : Effect()
         data class PhotoUriUpdated(val uri: String) : Effect()
-        data class PermissionsUpdated(val status: State.CameraPermissionStatus) : Effect()
-        object PermissionsNotGranted : Effect()
-        object ImageSourceDialogShown : Effect()
     }
 
     sealed class News {
+        object CameraStarted : News()
         object SightingSaved : News()
         object SightingNotSaved : News()
-        data class PermissionsRequired(val permissions: List<String>) : News()
     }
 
     class ActorImpl(
@@ -88,18 +76,8 @@ internal class NewSightingFormFeature(
                 is Action.ExecuteWish -> when (action.wish) {
                     is Wish.SaveSighting -> saveForm(dataSource, action.wish, state)
                     is Wish.UpdatePhotoUri -> Observable.just(Effect.PhotoUriUpdated(action.wish.uri))
-                    is Wish.UpdatePermissions -> handlePermissionResult(action.wish.granted)
-                    is Wish.ShowImageSourceDialog -> Observable.just(Effect.ImageSourceDialogShown)
+                    is Wish.RequestCameraStart -> Observable.just(Effect.CameraStartRequested)
                 }
-            }
-
-        private fun handlePermissionResult(permissionsGranted: List<String>): Observable<Effect> =
-            if (permissionsGranted.containsAll(IMAGE_CAPTURE_PERMISSIONS)) {
-                State.CameraPermissionStatus.GRANTED
-            } else {
-                State.CameraPermissionStatus.DENIED
-            }.let { status ->
-                Observable.just(Effect.PermissionsUpdated(status))
             }
 
         private fun saveForm(
@@ -119,7 +97,7 @@ internal class NewSightingFormFeature(
                         adults = wish.adults.toInt(),
                         pups = wish.pups.toInt(),
                         interaction = wish.interaction,
-                        comments = wish.comments!!,
+                        comments = if (wish.comments.isNullOrEmpty()) "No comments" else wish.comments,
                         coordinates = coordinates,
                         timestamp = System.currentTimeMillis(),
                         picture = state.picture
@@ -138,9 +116,7 @@ internal class NewSightingFormFeature(
                 is Effect.SightingSaved -> state
                 is Effect.SightingNotSaved -> state
                 is Effect.PhotoUriUpdated -> state.copy(picture = effect.uri)
-                is Effect.PermissionsNotGranted -> state
-                is Effect.PermissionsUpdated -> state.copy(cameraPermissionStatus = effect.status)
-                is Effect.ImageSourceDialogShown -> state.copy(showDialog = true)
+                is Effect.CameraStartRequested -> state
             }
     }
 
@@ -149,34 +125,10 @@ internal class NewSightingFormFeature(
             when (effect) {
                 is Effect.SightingSaved -> News.SightingSaved
                 is Effect.SightingNotSaved -> News.SightingNotSaved
-                is Effect.PermissionsNotGranted -> News.PermissionsRequired(
-                    IMAGE_CAPTURE_PERMISSIONS)
-                is Effect.PermissionsUpdated -> null
                 is Effect.PhotoUriUpdated -> null
-                is Effect.ImageSourceDialogShown -> null
+                is Effect.CameraStartRequested -> News.CameraStarted
             }
     }
 
-    class PostProcessorImpl : PostProcessor<Action, Effect, State> {
-        override fun invoke(action: Action, effect: Effect, state: State): Action? =
-            when (effect) {
-                is Effect.PermissionsUpdated -> {
-                    if (effect.status == State.CameraPermissionStatus.GRANTED)
-                        Action.ExecuteWish(Wish.ShowImageSourceDialog)
-                    else null
-                }
-                else -> null
-            }
-    }
 
-    companion object {
-        private val IMAGE_CAPTURE_PERMISSIONS = mutableListOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO
-        ).apply {
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                add(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        }
-    }
 }

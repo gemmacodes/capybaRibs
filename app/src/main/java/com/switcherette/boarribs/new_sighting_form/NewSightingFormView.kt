@@ -33,18 +33,12 @@ interface NewSightingFormView : RibView,
             val picture: String?,
         ) : Event()
 
-        object TakePhoto : Event()
+        object CameraRequested : Event()
         data class UpdatePhotoURL(val uri: Uri) : Event()
     }
 
     data class ViewModel(
-        val heading: String?,
-        val adults: Int?,
-        val pups: Int?,
-        val interaction: Boolean,
-        val comments: String?,
-        val picture: String?,
-        val showDialog: Boolean,
+        val picture: String?
     )
 
     fun interface Factory : ViewFactory<NewSightingFormView>
@@ -77,10 +71,7 @@ class NewSightingFormViewImpl private constructor(
                 val adults = etNumAdults.text.toString().trim()
                 val piglets = etNumPups.text.toString().trim()
                 val interaction = btnSEnvironment.isChecked
-                var comments = etComment.text.toString().trim()
-                if (comments.isEmpty()) {
-                    comments = context.getString(R.string.no_comments)
-                }
+                val comments = etComment.text.toString().trim()
                 val picture = ivThumbnail.id.toString()
 
                 events.accept(
@@ -97,7 +88,7 @@ class NewSightingFormViewImpl private constructor(
             }
 
             btnAddPicture.setOnClickListener {
-                if (vm.showDialog) showConfirmationDialog(it) else events.accept(Event.TakePhoto)
+                events.accept(Event.CameraRequested)
             }
 
         }

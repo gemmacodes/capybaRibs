@@ -10,7 +10,7 @@ internal object NewsToOutput : (NewSightingFormFeature.News) -> Output? {
         when (news) {
             is NewSightingFormFeature.News.SightingNotSaved -> null
             is NewSightingFormFeature.News.SightingSaved -> Output.SightingAdded
-            is NewSightingFormFeature.News.PermissionsRequired -> Output.PermissionsRequired(news.permissions)
+            is NewSightingFormFeature.News.CameraStarted -> Output.CameraRequested
         }
 }
 

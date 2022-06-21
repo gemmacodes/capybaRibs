@@ -74,13 +74,13 @@ class SightingDetailsViewImpl private constructor(
                         SimpleDateFormat("dd/MM/yyyy HH:mm").format(Date(vm.sighting.timestamp))
                     tvLocation.text =
                         "${((vm.sighting.coordinates.latitude * 100.0).roundToInt()) / 100.0}, ${((vm.sighting.coordinates.longitude * 100.0).roundToInt()) / 100.0}"
-                    tvHeading.text = "${vm.sighting.heading}"
+                    tvHeading.text = vm.sighting.heading
                     tvComments.text = vm.sighting.comments
 
                     chipAdults.text = "${vm.sighting.adults} adults"
                     chipPups.text = "${vm.sighting.pups} pups"
                     chipInteracting.text =
-                        "${if (vm.sighting.interaction) "interacting" else "not interacting"}"
+                        if (vm.sighting.interaction) "interacting" else "not interacting"
 
                     Glide
                         .with(view.context)
@@ -88,6 +88,7 @@ class SightingDetailsViewImpl private constructor(
                         .into(binding.ivPhoto)
                 }
             }
+            else -> {}
         }
     }
 

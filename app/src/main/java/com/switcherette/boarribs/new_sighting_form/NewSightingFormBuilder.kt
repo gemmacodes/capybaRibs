@@ -17,8 +17,7 @@ class NewSightingFormBuilder(
         val customisation = buildParams.getOrDefault(NewSightingForm.Customisation())
         val feature = feature(
             dependency.sightingsDataSource,
-            buildParams.payload.coordinates,
-            dependency.activityStarter
+            buildParams.payload.coordinates
         )
         val interactor = interactor(buildParams, feature)
 
@@ -27,10 +26,9 @@ class NewSightingFormBuilder(
 
     private fun feature(
         dataSource: SightingsDataSource,
-        coordinates: Coordinates,
-        activityStarter: ActivityStarter
+        coordinates: Coordinates
     ) =
-        NewSightingFormFeature(dataSource, coordinates, activityStarter)
+        NewSightingFormFeature(dataSource, coordinates)
 
     private fun interactor(
         buildParams: BuildParams<*>,

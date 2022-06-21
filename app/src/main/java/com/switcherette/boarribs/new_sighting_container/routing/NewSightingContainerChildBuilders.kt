@@ -1,8 +1,8 @@
 package com.switcherette.boarribs.new_sighting_container.routing
 
 
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.switcherette.boarribs.camera.Camera
+import com.switcherette.boarribs.camera.CameraBuilder
 import com.switcherette.boarribs.new_sighting_container.NewSightingContainer
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm
 import com.switcherette.boarribs.new_sighting_form.NewSightingFormBuilder
@@ -19,12 +19,14 @@ internal class NewSightingContainerChildBuilders(
 
     val newSightingMapBuilder = NewSightingMapBuilder(subtreeDependency)
     val newSightingFormBuilder = NewSightingFormBuilder(subtreeDependency)
+    val cameraBuilder = CameraBuilder(subtreeDependency)
 
     class SubtreeDependency(
         dependency: NewSightingContainer.Dependency,
     ) : NewSightingContainer.Dependency by dependency,
         NewSightingMap.Dependency,
-        NewSightingForm.Dependency
+        NewSightingForm.Dependency,
+        Camera.Dependency
 
 }
 

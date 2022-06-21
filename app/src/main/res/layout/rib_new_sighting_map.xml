@@ -13,7 +13,7 @@
         android:background="@color/pale_pink"
         android:paddingHorizontal="10dp"
         android:paddingVertical="5dp"
-        android:text="First, drag the boar to the sighting"
+        android:text="@string/first_drag_the_capybara_to_the_sighting"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,12 +41,12 @@
         android:src="@android:drawable/ic_menu_mylocation"
         mapbox:layout_constraintEnd_toEndOf="parent"
         mapbox:layout_constraintTop_toBottomOf="@id/tv_drag" />
-    <!--
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/clAddMap"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#B3BCAAA4" />
+            android:layout_height="match_parent"/>
+       <!-- android:background="#B3BCAAA4" />
 
 
         <com.airbnb.lottie.LottieAnimationView
@@ -62,17 +62,18 @@
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/shapesfloating" />
+            -->
 
         <pl.droidsonroids.gif.GifImageView
             android:id="@+id/ivLoading"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:src="@drawable/dancingboar"
+            android:src="@drawable/capydancing"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-            -->
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_addMap"
