@@ -6,5 +6,7 @@ import com.switcherette.boarribs.camera.feature.CameraFeature.Wish
 internal object ViewEventToWish : (Event) -> Wish? {
 
     override fun invoke(event: Event): Wish? =
-        TODO("Implement CameraViewEventToWish mapping")
+        when (event){
+            Event.PhotoCaptureRequested -> Wish.TakePhoto
+        }
 }

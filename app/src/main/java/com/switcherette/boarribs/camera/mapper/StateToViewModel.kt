@@ -6,5 +6,6 @@ import com.switcherette.boarribs.camera.feature.CameraFeature.State
 internal object StateToViewModel : (State) -> ViewModel {
 
     override fun invoke(state: State): ViewModel =
-        TODO("Implement StateToViewModel mapping")
+        ViewModel(state.isCameraStarted)
 }
+
