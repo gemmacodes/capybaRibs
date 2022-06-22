@@ -47,6 +47,8 @@ internal class CameraInteractor(
         viewLifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {
                 feature.accept(CameraFeature.Wish.OpenCameraIfReady)
+
+                //TODO: Does this go here?
                 val imageCapture: ImageCapture? = null
                 val binding = RibCameraBinding.bind(view.androidView)
                 startCamera(view.context, imageCapture, binding.viewFinder.surfaceProvider , owner)

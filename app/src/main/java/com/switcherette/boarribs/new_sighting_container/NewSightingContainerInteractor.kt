@@ -14,7 +14,6 @@ import com.badoo.ribs.routing.source.backstack.operation.pop
 import com.badoo.ribs.routing.source.backstack.operation.replace
 import com.jakewharton.rxrelay2.PublishRelay
 import com.switcherette.boarribs.camera.Camera
-import com.switcherette.boarribs.new_sighting_container.mapper.CameraOutputToContainerOutput
 import com.switcherette.boarribs.new_sighting_container.mapper.FormOutputToContainerOutput
 import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerRouter.Configuration
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm
@@ -53,7 +52,6 @@ internal class NewSightingContainerInteractor(
             commonLifecycle.createDestroy {
                 bind(cameraInputRelay to child.input)
                 bind(child.output to cameraOutputConsumer)
-                bind(child.output to rib.output using CameraOutputToContainerOutput)
             }
         }
 

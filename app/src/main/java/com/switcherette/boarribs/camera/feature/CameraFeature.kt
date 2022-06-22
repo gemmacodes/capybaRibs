@@ -29,12 +29,12 @@ class CameraFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
     sealed class Wish {
         object OpenCameraIfReady : Wish()
+        data class UpdatePermissions(val granted: List<String>) : Wish()
         object TakePhoto : Wish()
     }
 
     sealed class Action {
         data class Execute(val wish: Wish) : Action()
-        data class UpdatePermissions(val granted: List<String>) : Action()
     }
 
     sealed class Effect {
@@ -50,15 +50,15 @@ class CameraFeature : BaseFeature<Wish, Action, Effect, State, News>(
 
     class ActorImpl : Actor<State, Action, Effect> {
         override fun invoke(state: State, action: Action): Observable<Effect> = when (action) {
-            is Action.UpdatePermissions -> handlePermissionResult(action.granted)
             is Execute -> when (action.wish){
+                is Wish.UpdatePermissions -> handlePermissionResult(action.wish.granted)
                 is Wish.OpenCameraIfReady -> openCameraIfReady(state)
                 is Wish.TakePhoto -> launchTakePhoto()
             }
         }
 
         private fun launchTakePhoto(): Observable<CameraFeature.Effect> {
-            return Observable.just(Effect.PhotoTaken) //TODO
+            return Observable.just(Effect.PhotoTaken) //TODO: Does camera logic go here?
         }
 
         @SuppressLint("MissingPermission")
