@@ -1,5 +1,6 @@
 package com.switcherette.boarribs.camera
 
+import com.badoo.ribs.android.activitystarter.CanProvideActivityStarter
 import com.badoo.ribs.core.Rib
 import com.badoo.ribs.core.customisation.RibCustomisation
 import com.badoo.ribs.rx2.clienthelper.connector.Connectable
@@ -10,7 +11,7 @@ import io.reactivex.Single
 
 interface Camera : Rib, Connectable<Input, Output> {
 
-    interface Dependency
+    interface Dependency : CanProvideActivityStarter
 
     sealed class Input {
         data class GrantPermissions(val permissions:List<String>) : Input()
@@ -18,7 +19,7 @@ interface Camera : Rib, Connectable<Input, Output> {
 
     sealed class Output {
         data class PermissionsRequired(val permissions:List<String>) : Output()
-        data class PhotoTaken (val filepath: String) : Output()
+        data class PhotoTaken (val filepath: String?) : Output()
     }
 
     class Customisation(

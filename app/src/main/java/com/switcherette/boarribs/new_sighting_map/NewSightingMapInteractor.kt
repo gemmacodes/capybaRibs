@@ -37,7 +37,7 @@ internal class NewSightingMapInteractor(
             bind(view to feature using ViewEventToWish)
         }
         viewLifecycle.subscribe(
-            onCreate = { feature.accept(NewSightingMapFeature.Wish.FindMyLocation) },
+            onCreate = { feature.accept(NewSightingMapFeature.Wish.FindMyLocation) } ,
         )
     }
 

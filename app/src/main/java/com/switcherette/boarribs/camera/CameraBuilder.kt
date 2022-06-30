@@ -1,5 +1,6 @@
 package com.switcherette.boarribs.camera
 
+import com.badoo.ribs.android.activitystarter.ActivityStarter
 import com.badoo.ribs.builder.SimpleBuilder
 import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.rx2.disposables
@@ -11,8 +12,9 @@ class CameraBuilder(
 
     override fun build(buildParams: BuildParams<Nothing?>): Camera {
         val customisation = buildParams.getOrDefault(Camera.Customisation())
+        val activityStarter = dependency.activityStarter
         val feature = feature()
-        val interactor = interactor(buildParams, feature)
+        val interactor = interactor(buildParams, feature, activityStarter)
 
         return node(buildParams, customisation, feature, interactor)
     }
@@ -22,10 +24,12 @@ class CameraBuilder(
 
     private fun interactor(
         buildParams: BuildParams<*>,
-        feature: CameraFeature
+        feature: CameraFeature,
+        activityStarter: ActivityStarter
     ) = CameraInteractor(
             buildParams = buildParams,
-            feature = feature
+            feature = feature,
+            activityStarter = activityStarter
         )
 
     private fun node(

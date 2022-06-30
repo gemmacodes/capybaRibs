@@ -7,6 +7,6 @@ internal object ViewEventToWish : (Event) -> Wish? {
 
     override fun invoke(event: Event): Wish? =
         when (event){
-            Event.PhotoCaptureRequested -> Wish.TakePhoto
+            is Event.PhotoCaptureRequested -> Wish.TakePhoto(event.uri)
         }
 }

@@ -1,16 +1,20 @@
 package com.switcherette.boarribs.new_sighting_form
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.LayoutRes
+import androidx.core.app.ActivityCompat.startActivityForResult
 import com.badoo.ribs.core.customisation.inflate
 import com.badoo.ribs.core.view.AndroidRibView
 import com.badoo.ribs.core.view.RibView
 import com.badoo.ribs.core.view.ViewFactory
+import com.bumptech.glide.Glide
 import com.jakewharton.rxrelay2.PublishRelay
 import com.switcherette.boarribs.R
 import com.switcherette.boarribs.databinding.RibNewSightingFormBinding
@@ -30,11 +34,9 @@ interface NewSightingFormView : RibView,
             val pups: String?,
             val interaction: Boolean,
             val comments: String?,
-            val picture: String?,
         ) : Event()
 
         object CameraRequested : Event()
-        data class UpdatePhotoURL(val uri: Uri) : Event()
     }
 
     data class ViewModel(
@@ -64,24 +66,28 @@ class NewSightingFormViewImpl private constructor(
 
     private val binding: RibNewSightingFormBinding = RibNewSightingFormBinding.bind(androidView)
 
+
     override fun accept(vm: ViewModel) {
         with(binding) {
+            Glide
+                .with(context)
+                .load(vm.picture)
+                .into(binding.ivThumbnail)
+
             fabAddForm.setOnClickListener {
                 val heading = etHeading.text.toString().trim()
                 val adults = etNumAdults.text.toString().trim()
-                val piglets = etNumPups.text.toString().trim()
+                val pups = etNumPups.text.toString().trim()
                 val interaction = btnSEnvironment.isChecked
                 val comments = etComment.text.toString().trim()
-                val picture = ivThumbnail.id.toString()
 
                 events.accept(
                     Event.SaveSighting(
                         heading,
                         adults,
-                        piglets,
+                        pups,
                         interaction,
-                        comments,
-                        picture
+                        comments
                     )
                 )
 
@@ -89,6 +95,7 @@ class NewSightingFormViewImpl private constructor(
 
             btnAddPicture.setOnClickListener {
                 events.accept(Event.CameraRequested)
+                //showConfirmationDialog(it)
             }
 
         }
@@ -105,9 +112,9 @@ class NewSightingFormViewImpl private constructor(
         )
         builder.setItems(options, DialogInterface.OnClickListener { dialog, item ->
             if (options[item] == context.getString(R.string.take_photo)) {
-                TODO()
+                events.accept(Event.CameraRequested)
             } else if (options[item] == context.getString(R.string.choose_gallery)) {
-                TODO()
+                //TODO
             } else if (options[item] == context.getString(R.string.cancel_photo)) {
                 dialog.dismiss()
             }

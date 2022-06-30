@@ -52,52 +52,6 @@ internal class NewSightingFormInteractor(
             R.string.mandatory_fields_toast,
             Toast.LENGTH_SHORT
         ).show()
-//
-//    private var photoURI: Uri? = null
-//    private val previewImage by lazy { binding.ivThumbnail }
-//
-//    private fun takeImage() {
-//        getTmpFileUri().let { uri ->
-//            photoURI = uri
-//            takeImageResult.launch(uri)
-//        }
-//    }
-//
-//
-//
-//    private val takeImageResult =
-//        registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-//            if (isSuccess) {
-//                photoURI?.let { uri ->
-//                    previewImage.setImageURI(uri)
-//                    events.accept(NewSightingFormView.Event.UpdatePhotoURL(uri))
-//                }
-//            }
-//        }
-//
-//    private fun selectImageFromGallery() = selectImageFromGalleryResult.launch("image/*")
-//
-//    private val selectImageFromGalleryResult =
-//        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-//            uri?.let {
-//                previewImage.setImageURI(uri)
-//                events.accept(NewSightingFormView.Event.UpdatePhotoURL(uri))
-//            }
-//        }
-//
-//    private fun getTmpFileUri(): Uri {
-//
-//        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-//        val storageDir: File = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
-//        val tmpFile = File.createTempFile(
-//            "JPEG_${timeStamp}_", /* prefix */
-//            ".jpg", /* suffix */
-//            storageDir /* directory */)
-//        return FileProvider.getUriForFile(
-//            context,
-//            "${BuildConfig.APPLICATION_ID}.provider",
-//            tmpFile
-//        )
-//    }
+
 
 }

@@ -1,22 +1,13 @@
 package com.switcherette.boarribs.camera
 
-import android.app.Activity
-import android.content.ContentValues
-import android.os.Build
-import android.provider.MediaStore
-import android.util.Log
-import android.view.View
+import android.content.Context
+import android.net.Uri
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.annotation.LayoutRes
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.badoo.ribs.core.customisation.inflate
 import com.badoo.ribs.core.view.AndroidRibView
 import com.badoo.ribs.core.view.RibView
@@ -28,19 +19,17 @@ import com.switcherette.boarribs.camera.CameraView.ViewModel
 import com.switcherette.boarribs.databinding.RibCameraBinding
 import io.reactivex.ObservableSource
 import io.reactivex.functions.Consumer
-import java.text.SimpleDateFormat
-import java.util.*
 
 interface CameraView : RibView,
     ObservableSource<Event>,
     Consumer<ViewModel> {
 
-    sealed class Event{
-        object PhotoCaptureRequested: Event()
+    sealed class Event {
+        data class PhotoCaptureRequested(val uri: Uri?) : Event()
     }
 
     data class ViewModel(
-        val isCameraStarted: Boolean = true,
+        val isCameraStarted: Boolean = false,
     )
 
     fun interface Factory : ViewFactory<CameraView>
@@ -56,6 +45,7 @@ class CameraViewImpl private constructor(
     Consumer<ViewModel> {
 
     private val binding = RibCameraBinding.bind(androidView)
+    private val imageCapture: ImageCapture = ImageCapture.Builder().build()
 
 
     class Factory(
@@ -69,10 +59,20 @@ class CameraViewImpl private constructor(
 
     override fun accept(vm: ViewModel) {
         if (vm.isCameraStarted) {
-            binding.btnImageCapture.setOnClickListener { events.accept(Event.PhotoCaptureRequested) }
-        }
-    }
+            val lifecycleOwner = androidView.findViewTreeLifecycleOwner()
+            if (lifecycleOwner != null) {
+                startCamera(context, imageCapture, binding.viewFinder.surfaceProvider, lifecycleOwner)
+            }
 
+            binding.btnImageCapture.setOnClickListener {
+                //take photo
+                val uri = takePhoto(context, imageCapture)
+                // store photo uri in feature state
+                events.accept(Event.PhotoCaptureRequested(uri))
+            }
+        }
+
+    }
 
 
 }

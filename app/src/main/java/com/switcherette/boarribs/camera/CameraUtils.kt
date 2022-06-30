@@ -1,8 +1,9 @@
 package com.switcherette.boarribs.camera
 
-import android.content.ContentResolver
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
@@ -14,14 +15,20 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.google.android.material.internal.ContextUtils.getActivity
 import java.text.SimpleDateFormat
 import java.util.*
 
 //TODO: Should this logic be added somewhere else?
-fun startCamera(context: Context, imageCapture: ImageCapture?,  surfaceProvider: Preview.SurfaceProvider, lifecycleOwner:LifecycleOwner) {
+fun startCamera(
+    context: Context,
+    imageCapture: ImageCapture,
+    surfaceProvider: Preview.SurfaceProvider,
+    lifecycleOwner: LifecycleOwner,
+) {
     val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
-    var imageCapture2 = imageCapture
+
     cameraProviderFuture.addListener({
         // Used to bind the lifecycle of cameras to the lifecycle owner
         val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
@@ -33,9 +40,6 @@ fun startCamera(context: Context, imageCapture: ImageCapture?,  surfaceProvider:
                 it.setSurfaceProvider(surfaceProvider)
             }
 
-        imageCapture2 = ImageCapture.Builder()
-            .build()
-
         // Select back camera as a default
         val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -45,9 +49,9 @@ fun startCamera(context: Context, imageCapture: ImageCapture?,  surfaceProvider:
 
             // Bind use cases to camera
             cameraProvider.bindToLifecycle(
-                lifecycleOwner, cameraSelector, preview, imageCapture2)
+                lifecycleOwner, cameraSelector, preview, imageCapture)
 
-        } catch(exc: Exception) {
+        } catch (exc: Exception) {
             Log.e("CameraXApp", "Use case binding failed", exc)
         }
 
@@ -55,30 +59,35 @@ fun startCamera(context: Context, imageCapture: ImageCapture?,  surfaceProvider:
 }
 
 
-fun takePhoto(context: Context, imageCapture: ImageCapture, contentResolver: ContentResolver) {
+@SuppressLint("RestrictedApi")
+fun takePhoto(context: Context, imageCapture: ImageCapture): Uri? {
+
+    var photoUri: Uri? = null
 
     // Create time stamped name and MediaStore entry.
-    val name = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.ENGLISH)
+    val name = SimpleDateFormat("yyyyMMdd_HHmm", Locale.ENGLISH)
         .format(System.currentTimeMillis())
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, name)
         put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
         }
     }
 
     // Create output options object which contains file + metadata
-    val outputOptions = ImageCapture.OutputFileOptions
-        .Builder(contentResolver,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues)
-        .build()
+    val outputOptions = getActivity(context)?.let {
+        ImageCapture.OutputFileOptions
+            .Builder(it.contentResolver,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues)
+            .build()
+    }
 
     // Set up image capture listener, which is triggered after photo has
     // been taken
     imageCapture.takePicture(
-        outputOptions,
+        outputOptions!!,
         ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageSavedCallback {
             override fun onError(exc: ImageCaptureException) {
@@ -86,11 +95,13 @@ fun takePhoto(context: Context, imageCapture: ImageCapture, contentResolver: Con
             }
 
             override fun
-                    onImageSaved(output: ImageCapture.OutputFileResults){
+                    onImageSaved(output: ImageCapture.OutputFileResults) {
                 val msg = "Photo capture succeeded: ${output.savedUri}"
-                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                 Log.d("CameraXApp", msg)
+                photoUri = output.savedUri
             }
         }
     )
+
+    return photoUri
 }

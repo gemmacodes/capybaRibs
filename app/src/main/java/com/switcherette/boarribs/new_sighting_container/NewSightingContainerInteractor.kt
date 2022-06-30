@@ -11,6 +11,7 @@ import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.minimal.reactive.Cancellable
 import com.badoo.ribs.routing.source.backstack.BackStack
 import com.badoo.ribs.routing.source.backstack.operation.pop
+import com.badoo.ribs.routing.source.backstack.operation.push
 import com.badoo.ribs.routing.source.backstack.operation.replace
 import com.jakewharton.rxrelay2.PublishRelay
 import com.switcherette.boarribs.camera.Camera
@@ -113,7 +114,7 @@ internal class NewSightingContainerInteractor(
 
     private val newSightingFormOutputConsumer: Consumer<NewSightingForm.Output> = Consumer {
         when (it) {
-            is NewSightingForm.Output.CameraRequested -> backStack.replace(Configuration.Content.Camera)
+            is NewSightingForm.Output.CameraRequested -> backStack.push(Configuration.Content.Camera)
             is NewSightingForm.Output.SightingAdded -> {}
         }
     }
@@ -124,8 +125,8 @@ internal class NewSightingContainerInteractor(
             is Camera.Output.PermissionsRequired -> requestPermissions(it.permissions,
                 REQUEST_IMAGE_ACCESS)
             is Camera.Output.PhotoTaken -> {
-                newSightingFormInputRelay.accept(NewSightingForm.Input.StorePhoto(it.filepath))
                 backStack.pop()
+                newSightingFormInputRelay.accept(NewSightingForm.Input.StorePhoto(it.filepath?: ""))
             }
             else -> {}
         }
