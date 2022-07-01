@@ -4,11 +4,9 @@ import com.badoo.mvicore.element.Actor
 import com.badoo.mvicore.element.Bootstrapper
 import com.badoo.mvicore.element.Reducer
 import com.badoo.mvicore.feature.BaseFeature
-import com.switcherette.boarribs.all_sightings_list.feature.AllSightingsListFeature
 import com.switcherette.boarribs.all_sightings_map.feature.AllSightingsMapFeature.*
 import com.switcherette.boarribs.data.Sighting
 import com.switcherette.boarribs.data.SightingsDataSource
-import com.switcherette.boarribs.sighting_details.feature.SightingDetailsFeature
 import io.reactivex.Observable
 import io.reactivex.Observable.empty
 
@@ -32,8 +30,7 @@ internal class AllSightingsMapFeature(
         }
     }
 
-    sealed class Wish {
-    }
+    sealed class Wish {}
 
     sealed class Action {
         data class ExecuteWish(val wish: Wish) : Action()
@@ -54,14 +51,14 @@ internal class AllSightingsMapFeature(
     }
 
     class ActorImpl(
-        private val sightingsDataSource: SightingsDataSource
+        private val sightingsDataSource: SightingsDataSource,
     ) : Actor<State, Action, Effect> {
 
         override fun invoke(state: State, action: Action): Observable<out Effect> =
             when (action) {
                 is Action.LoadSightings ->
-                    when(state.content){
-                        is State.Content.SightingsLoaded -> Observable.empty()
+                    when (state.content) {
+                        is State.Content.SightingsLoaded -> empty()
                         else -> retrieveSightings()
                     }
                 else -> empty()
@@ -90,7 +87,6 @@ internal class AllSightingsMapFeature(
                 is Effect.LoadingFailed -> state.copy(
                     content = State.Content.SightingLoadingError
                 )
-                else -> TODO()
             }
     }
 }

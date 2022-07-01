@@ -31,7 +31,7 @@ class CameraFeature() : BaseFeature<Wish, Action, Effect, State, News>(
     }
 
     sealed class Wish {
-        object OpenCameraIfReady : Wish()
+        object StartCameraIfReady : Wish()
         data class UpdatePermissions(val granted: List<String>) : Wish()
         data class TakePhoto(val uri: Uri?) : Wish()
     }
@@ -43,7 +43,7 @@ class CameraFeature() : BaseFeature<Wish, Action, Effect, State, News>(
     sealed class Effect {
         data class PermissionsUpdated(val status: State.CameraPermissionStatus) : Effect()
         object PermissionsNotGranted : Effect()
-        object CameraOpened : Effect()
+        object CameraStarted : Effect()
         data class PhotoTaken(val filepath: Uri?) : Effect()
     }
 
@@ -56,17 +56,17 @@ class CameraFeature() : BaseFeature<Wish, Action, Effect, State, News>(
         override fun invoke(state: State, action: Action): Observable<Effect> = when (action) {
             is Execute -> when (action.wish) {
                 is Wish.UpdatePermissions -> handlePermissionResult(action.wish.granted)
-                is Wish.OpenCameraIfReady -> openCameraIfReady(state)
+                is Wish.StartCameraIfReady -> startCameraIfReady(state)
                 is Wish.TakePhoto -> Observable.just(Effect.PhotoTaken(action.wish.uri))
             }
         }
 
         @SuppressLint("MissingPermission")
-        private fun openCameraIfReady(state: State): Observable<Effect> {
+        private fun startCameraIfReady(state: State): Observable<Effect> {
             return if (state.cameraPermissionStatus != State.CameraPermissionStatus.GRANTED) {
                 Observable.just(Effect.PermissionsNotGranted)
             } else {
-                Observable.just(Effect.CameraOpened)
+                Observable.just(Effect.CameraStarted)
             }
         }
 
@@ -86,7 +86,7 @@ class CameraFeature() : BaseFeature<Wish, Action, Effect, State, News>(
         override fun invoke(state: State, effect: Effect): State = when (effect) {
             is Effect.PermissionsNotGranted -> state
             is Effect.PermissionsUpdated -> state.copy(cameraPermissionStatus = effect.status)
-            is Effect.CameraOpened -> state.copy(isCameraStarted = true)
+            is Effect.CameraStarted -> state.copy(isCameraStarted = true)
             is Effect.PhotoTaken -> state.copy(
                 filepath = effect.filepath.toString(),
                 isCameraStarted = false
@@ -98,7 +98,7 @@ class CameraFeature() : BaseFeature<Wish, Action, Effect, State, News>(
         override fun invoke(action: Action, effect: Effect, state: State): Action? = when (effect) {
             is Effect.PermissionsUpdated -> {
                 if (effect.status == State.CameraPermissionStatus.GRANTED)
-                    Execute(Wish.OpenCameraIfReady)
+                    Execute(Wish.StartCameraIfReady)
                 else null
             }
             else -> null

@@ -1,6 +1,5 @@
 package com.switcherette.boarribs.new_sighting_map
 
-import android.opengl.Visibility
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
@@ -15,8 +14,6 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.Style
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
-import com.mapbox.maps.extension.style.expressions.generated.Expression
-import com.mapbox.maps.extension.style.layers.generated.FillLayer
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.annotation.Annotation
 import com.mapbox.maps.plugin.annotation.annotations
@@ -26,7 +23,6 @@ import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.switcherette.boarribs.R
 import com.switcherette.boarribs.data.Coordinates
-import com.switcherette.boarribs.data.Sighting
 import com.switcherette.boarribs.databinding.RibNewSightingMapBinding
 import com.switcherette.boarribs.new_sighting_map.NewSightingMapView.Event
 import com.switcherette.boarribs.new_sighting_map.NewSightingMapView.ViewModel
@@ -89,6 +85,7 @@ class NewSightingMapViewImpl private constructor(
             ) {
                 initLocationComponent()
                 mapAdd.gestures.addOnMoveListener(onMoveListener)
+                binding.ivLoading.visibility = View.GONE
             }
             pointAnnotationManager = binding.mapAdd.annotations.createPointAnnotationManager()
         }
@@ -96,6 +93,7 @@ class NewSightingMapViewImpl private constructor(
 
     override fun accept(vm: ViewModel) {
         with(binding) {
+            updateBoarLocation(vm.boarCoordinates)
             mapAdd.getMapboxMap().setCamera(
                 CameraOptions.Builder()
                     .zoom(14.0)
@@ -103,7 +101,6 @@ class NewSightingMapViewImpl private constructor(
                         vm.boarCoordinates.latitude))
                     .build()
             )
-            updateBoarLocation(vm.boarCoordinates)
         }
     }
 
@@ -125,23 +122,7 @@ class NewSightingMapViewImpl private constructor(
             pointAnnotationManager.create(pointAnnotationOptions)
         }.also {
             boarAnnotation = it
-            binding.ivLoading.visibility = View.GONE
         }
-
-/*
-interpolate {
-                    linear()
-                    zoom()
-                    stop {
-                        literal(0.0)
-                        literal(0.6)
-                    }
-                    stop {
-                        literal(20.0)
-                        literal(1.0)
-                    }
-                }
- */
 
     private val dragListener = object : OnPointAnnotationDragListener {
         override fun onAnnotationDrag(annotation: Annotation<*>) {}
@@ -193,9 +174,11 @@ interpolate {
         override fun onMoveBegin(detector: MoveGestureDetector) {
             onCameraTrackingDismissed()
         }
+
         override fun onMove(detector: MoveGestureDetector): Boolean {
             return false
         }
+
         override fun onMoveEnd(detector: MoveGestureDetector) {}
     }
 

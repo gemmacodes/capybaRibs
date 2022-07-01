@@ -12,9 +12,8 @@ class CameraBuilder(
 
     override fun build(buildParams: BuildParams<Nothing?>): Camera {
         val customisation = buildParams.getOrDefault(Camera.Customisation())
-        val activityStarter = dependency.activityStarter
         val feature = feature()
-        val interactor = interactor(buildParams, feature, activityStarter)
+        val interactor = interactor(buildParams, feature)
 
         return node(buildParams, customisation, feature, interactor)
     }
@@ -24,12 +23,10 @@ class CameraBuilder(
 
     private fun interactor(
         buildParams: BuildParams<*>,
-        feature: CameraFeature,
-        activityStarter: ActivityStarter
+        feature: CameraFeature
     ) = CameraInteractor(
             buildParams = buildParams,
-            feature = feature,
-            activityStarter = activityStarter
+            feature = feature
         )
 
     private fun node(

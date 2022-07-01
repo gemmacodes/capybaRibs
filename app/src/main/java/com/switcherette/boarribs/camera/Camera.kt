@@ -11,7 +11,7 @@ import io.reactivex.Single
 
 interface Camera : Rib, Connectable<Input, Output> {
 
-    interface Dependency : CanProvideActivityStarter
+    interface Dependency
 
     sealed class Input {
         data class GrantPermissions(val permissions:List<String>) : Input()
