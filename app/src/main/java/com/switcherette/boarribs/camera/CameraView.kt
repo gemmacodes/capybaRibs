@@ -1,12 +1,9 @@
 package com.switcherette.boarribs.camera
 
-import android.content.Context
 import android.net.Uri
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.camera.core.ImageCapture
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.badoo.ribs.core.customisation.inflate
 import com.badoo.ribs.core.view.AndroidRibView
@@ -65,10 +62,7 @@ class CameraViewImpl private constructor(
             }
 
             binding.btnImageCapture.setOnClickListener {
-                //take photo
-                val uri = takePhoto(context, imageCapture)
-                // store photo uri in feature state
-                events.accept(Event.PhotoCaptureRequested(uri))
+                takePhoto(context, imageCapture, events)
             }
         }
 
