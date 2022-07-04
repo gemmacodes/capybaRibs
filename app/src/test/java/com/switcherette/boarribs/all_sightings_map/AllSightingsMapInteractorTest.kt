@@ -1,11 +1,11 @@
 package com.switcherette.boarribs.all_sightings_map
 
-import com.switcherette.boarribs.all_sightings_map.feature.AllSightingsMapFeature
 import com.badoo.ribs.test.emptyBuildParams
-import com.nhaarman.mockitokotlin2.mock
+import com.switcherette.boarribs.all_sightings_map.feature.AllSightingsMapFeature
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class AllSightingsMapInteractorTest {
 

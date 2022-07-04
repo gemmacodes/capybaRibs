@@ -1,4 +1,4 @@
-package com.switcherette.boarribs.camera
+package com.switcherette.boarribs.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -14,12 +14,12 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.jakewharton.rxrelay2.PublishRelay
+import com.switcherette.boarribs.camera.CameraView
 import saveImage
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
 
-//TODO: Should this logic be added somewhere else?
 fun startCamera(
     context: Context,
     imageCapture: ImageCapture,

@@ -1,11 +1,11 @@
 package com.switcherette.boarribs.all_sightings_list
 
-import com.switcherette.boarribs.all_sightings_list.feature.AllSightingsListFeature
 import com.badoo.ribs.test.emptyBuildParams
-import com.nhaarman.mockitokotlin2.mock
+import com.switcherette.boarribs.all_sightings_list.feature.AllSightingsListFeature
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class AllSightingsListInteractorTest {
 

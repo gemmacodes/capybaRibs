@@ -1,6 +1,10 @@
 package com.switcherette.boarribs.new_sighting_container
 
+import com.badoo.ribs.android.activitystarter.ActivityStarter
+import com.badoo.ribs.android.permissionrequester.PermissionRequester
 import com.badoo.ribs.core.modality.BuildContext
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.switcherette.boarribs.data.SightingsDataSource
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -12,6 +16,14 @@ class NewSightingContainerWorkflowTest {
     @Before
     fun setup() {
         workflow = NewSightingContainerBuilder(object : NewSightingContainer.Dependency {
+            override val sightingsDataSource: SightingsDataSource
+                get() = TODO("Not yet implemented")
+            override val locationClient: FusedLocationProviderClient
+                get() = TODO("Not yet implemented")
+            override val permissionRequester: PermissionRequester
+                get() = TODO("Not yet implemented")
+            override val activityStarter: ActivityStarter
+                get() = TODO("Not yet implemented")
         }).build(BuildContext.root(savedInstanceState = null)).also {
             it.node.onCreate()
         }
@@ -26,7 +38,7 @@ class NewSightingContainerWorkflowTest {
      */
     @Test
     fun `business logic operation test`() {
-        workflow.businessLogicOperation()
+        //workflow.businessLogicOperation()
         // verify(feature).accept(Wish)
 
         throw RuntimeException("Add real tests.")

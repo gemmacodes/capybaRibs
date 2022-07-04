@@ -126,7 +126,8 @@ internal class NewSightingContainerInteractor(
                 REQUEST_IMAGE_ACCESS)
             is Camera.Output.PhotoTaken -> {
                 backStack.pop()
-                newSightingFormInputRelay.accept(NewSightingForm.Input.StorePhoto(it.filepath?: ""))
+                newSightingFormInputRelay.accept(NewSightingForm.Input.StorePhoto(it.filepath
+                    ?: ""))
             }
             else -> {}
         }

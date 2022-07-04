@@ -1,15 +1,15 @@
 package com.switcherette.boarribs.new_sighting_form
 
-import com.switcherette.boarribs.new_sighting_form.feature.SightingDetailsFeature
 import com.badoo.ribs.test.emptyBuildParams
-import com.nhaarman.mockitokotlin2.mock
+import com.switcherette.boarribs.new_sighting_form.feature.NewSightingFormFeature
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class NewSightingFormInteractorTest {
 
-    private val feature: SightingDetailsFeature = mock()
+    private val feature: NewSightingFormFeature = mock()
     private lateinit var interactor: NewSightingFormInteractor
 
     @Before

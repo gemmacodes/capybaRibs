@@ -13,7 +13,7 @@ class NewSightingFormBuilder(
     private val dependency: NewSightingForm.Dependency
 ) : Builder<NewSightingForm.BuildParams, NewSightingForm>() {
 
-    override fun build(buildParams: BuildParams<NewSightingForm.BuildParams>): NewSightingForm {
+    public override fun build(buildParams: BuildParams<NewSightingForm.BuildParams>): NewSightingForm {
         val customisation = buildParams.getOrDefault(NewSightingForm.Customisation())
         val feature = feature(
             dependency.sightingsDataSource,

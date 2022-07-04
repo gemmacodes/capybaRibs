@@ -1,17 +1,17 @@
 package com.switcherette.boarribs.app_root
 
+import com.badoo.ribs.android.dialog.DialogLauncher
 import com.badoo.ribs.routing.source.backstack.BackStack
-import com.switcherette.boarribs.app_root.feature.AppRootFeature
-import com.switcherette.boarribs.app_root.routing.AppRootRouter.Configuration
 import com.badoo.ribs.test.emptyBuildParams
-import com.nhaarman.mockitokotlin2.mock
+import com.switcherette.boarribs.app_root.routing.AppRootRouter.Configuration
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class AppRootInteractorTest {
 
-    private val feature: AppRootFeature = mock()
+    private val dialogLauncher: DialogLauncher = mock()
     private val backStack: BackStack<Configuration> = mock()
     private lateinit var interactor: AppRootInteractor
 
@@ -19,8 +19,8 @@ class AppRootInteractorTest {
     fun setup() {
         interactor = AppRootInteractor(
             buildParams = emptyBuildParams(),
-            feature = feature,
-            backStack = backStack
+            backStack = backStack,
+            dialogLauncher = dialogLauncher
         )
     }
 

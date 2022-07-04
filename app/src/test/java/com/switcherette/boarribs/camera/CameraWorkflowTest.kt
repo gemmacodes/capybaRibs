@@ -26,7 +26,7 @@ class CameraWorkflowTest {
      */
     @Test
     fun `business logic operation test`() {
-        workflow.businessLogicOperation()
+        //workflow.businessLogicOperation()
         // verify(feature).accept(Wish)
 
         throw RuntimeException("Add real tests.")

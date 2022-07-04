@@ -1,6 +1,7 @@
 package com.switcherette.boarribs.camera
 
 import com.badoo.ribs.test.emptyBuildParams
+import com.switcherette.boarribs.camera.feature.CameraFeature
 import org.mockito.kotlin.mock
 import org.junit.After
 import org.junit.Before

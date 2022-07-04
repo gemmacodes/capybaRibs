@@ -1,17 +1,17 @@
 package com.switcherette.boarribs.new_sighting_container
 
+import com.badoo.ribs.android.permissionrequester.PermissionRequester
 import com.badoo.ribs.routing.source.backstack.BackStack
-import com.switcherette.boarribs.new_sighting_container.feature.NewSightingContainerFeature
-import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerRouter.Configuration
 import com.badoo.ribs.test.emptyBuildParams
-import org.mockito.kotlin.mock
+import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerRouter.Configuration
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class NewSightingContainerInteractorTest {
 
-    private val feature: NewSightingContainerFeature = mock()
+    private val permissionRequester: PermissionRequester = mock()
     private val backStack: BackStack<Configuration> = mock()
     private lateinit var interactor: NewSightingContainerInteractor
 
@@ -19,8 +19,8 @@ class NewSightingContainerInteractorTest {
     fun setup() {
         interactor = NewSightingContainerInteractor(
             buildParams = emptyBuildParams(),
-            feature = feature,
-            backStack = backStack
+            backStack = backStack,
+            permissionRequester = permissionRequester
         )
     }
 

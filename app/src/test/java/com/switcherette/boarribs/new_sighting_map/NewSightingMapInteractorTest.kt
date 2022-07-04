@@ -1,11 +1,11 @@
 package com.switcherette.boarribs.new_sighting_map
 
-import com.switcherette.boarribs.new_sighting_map.feature.NewSightingMapFeature
 import com.badoo.ribs.test.emptyBuildParams
-import com.nhaarman.mockitokotlin2.mock
+import com.switcherette.boarribs.new_sighting_map.feature.NewSightingMapFeature
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class NewSightingMapInteractorTest {
 

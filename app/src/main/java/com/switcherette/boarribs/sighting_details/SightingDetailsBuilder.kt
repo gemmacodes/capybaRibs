@@ -11,7 +11,7 @@ class SightingDetailsBuilder(
     private val dependency: SightingDetails.Dependency
 ) : Builder<SightingDetails.BuildParams, SightingDetails>() {
 
-    override fun build(buildParams: BuildParams<SightingDetails.BuildParams>): SightingDetails {
+    public override fun build(buildParams: BuildParams<SightingDetails.BuildParams>): SightingDetails {
         val sightingId = buildParams.payload.sightingId
         val customisation = buildParams.getOrDefault(SightingDetails.Customisation())
         val feature = feature(dependency.sightingsDataSource, sightingId)

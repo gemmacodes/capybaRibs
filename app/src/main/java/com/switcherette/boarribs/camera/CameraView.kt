@@ -14,6 +14,8 @@ import com.switcherette.boarribs.R
 import com.switcherette.boarribs.camera.CameraView.Event
 import com.switcherette.boarribs.camera.CameraView.ViewModel
 import com.switcherette.boarribs.databinding.RibCameraBinding
+import com.switcherette.boarribs.utils.startCamera
+import com.switcherette.boarribs.utils.takePhoto
 import io.reactivex.ObservableSource
 import io.reactivex.functions.Consumer
 
