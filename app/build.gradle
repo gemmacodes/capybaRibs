@@ -41,6 +41,7 @@ android {
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.arch.core:core-testing:2.1.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -89,8 +90,6 @@ dependencies {
     //Lifecycle
     def lifecycle_version = "2.5.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
-    // Required -- JUnit 4 framework
-    testImplementation "junit:junit:4.13.2"
     // Optional -- Robolectric environment
     testImplementation 'org.robolectric:robolectric:4.8.1'
     // Optional -- Mockito framework
@@ -99,4 +98,5 @@ dependencies {
     testImplementation "org.mockito.kotlin:mockito-kotlin:3.2.0"
     // Optional -- Mockk framework
     testImplementation "io.mockk:mockk:1.12.4"
+    androidTestImplementation 'androidx.test:rules:1.4.0'
 }

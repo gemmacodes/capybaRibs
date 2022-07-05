@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.badoo.ribs.test.RibsRule
 import com.badoo.ribs.test.RibTestActivity
 import com.badoo.ribs.core.modality.BuildContext.Companion.root
+import com.switcherette.boarribs.data.SightingsDataSource
 import org.junit.Rule
 import org.junit.Test
 
@@ -17,7 +18,10 @@ class AllSightingsListTest {
 
     private fun buildRib(ribTestActivity: RibTestActivity, savedInstanceState: Bundle?) =
         AllSightingsListBuilder(
-            object : AllSightingsList.Dependency {}
+            object : AllSightingsList.Dependency {
+                override val sightingsDataSource: SightingsDataSource
+                    get() = TODO("Not yet implemented")
+            }
         ).build(root(savedInstanceState)).also {
             rib = it
         }

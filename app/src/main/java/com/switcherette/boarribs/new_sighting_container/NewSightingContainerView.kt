@@ -32,7 +32,6 @@ class NewSightingContainerViewImpl private constructor(
             NewSightingContainerViewImpl(
                 context.inflate(layoutRes)
             )
-
     }
 
 }

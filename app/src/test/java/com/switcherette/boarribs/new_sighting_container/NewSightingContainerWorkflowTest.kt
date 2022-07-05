@@ -8,6 +8,7 @@ import com.switcherette.boarribs.data.SightingsDataSource
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class NewSightingContainerWorkflowTest {
 
@@ -17,13 +18,13 @@ class NewSightingContainerWorkflowTest {
     fun setup() {
         workflow = NewSightingContainerBuilder(object : NewSightingContainer.Dependency {
             override val sightingsDataSource: SightingsDataSource
-                get() = TODO("Not yet implemented")
+                get() = mock()
             override val locationClient: FusedLocationProviderClient
-                get() = TODO("Not yet implemented")
+                get() = mock()
             override val permissionRequester: PermissionRequester
-                get() = TODO("Not yet implemented")
+                get() = mock()
             override val activityStarter: ActivityStarter
-                get() = TODO("Not yet implemented")
+                get() = mock()
         }).build(BuildContext.root(savedInstanceState = null)).also {
             it.node.onCreate()
         }

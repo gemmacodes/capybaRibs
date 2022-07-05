@@ -9,6 +9,7 @@ import com.badoo.ribs.routing.source.RoutingSource
 import com.badoo.ribs.routing.source.backstack.BackStack
 import com.badoo.ribs.rx2.disposables
 import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerChildBuilders
+import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerChildBuildersImpl
 import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerRouter
 import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerRouter.Configuration
 
@@ -17,7 +18,7 @@ class NewSightingContainerBuilder(
 ) : SimpleBuilder<NewSightingContainer>() {
 
     override fun build(buildParams: BuildParams<Nothing?>): NewSightingContainer {
-        val connections = NewSightingContainerChildBuilders(dependency)
+        val connections = NewSightingContainerChildBuildersImpl(dependency)
         val customisation = buildParams.getOrDefault(NewSightingContainer.Customisation())
         val backStack = backStack(buildParams)
         val permissionRequester = dependency.permissionRequester

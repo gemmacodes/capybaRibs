@@ -45,14 +45,14 @@ class NewSightingContainerRouter internal constructor(
         with(builders) {
             when (val configuration = routing.configuration) {
                 is Configuration.Content.NewSightingMap -> child {
-                    newSightingMapBuilder.build(it)
+                    newSightingMapBuilder.build(it, null)
                 }
                 is Configuration.Content.NewSightingForm -> child {
                     newSightingFormBuilder.build(it,
                         NewSightingForm.BuildParams(configuration.coordinates))
                 }
                 is Configuration.Content.Camera -> child {
-                    cameraBuilder.build(it)
+                    cameraBuilder.build(it, null)
                 }
             }
         }

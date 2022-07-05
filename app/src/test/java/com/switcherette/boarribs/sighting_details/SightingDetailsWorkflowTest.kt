@@ -1,7 +1,6 @@
 package com.switcherette.boarribs.sighting_details
 
 import com.badoo.ribs.core.modality.BuildContext
-import com.badoo.ribs.core.modality.BuildParams
 import com.switcherette.boarribs.data.SightingsDataSource
 import org.junit.After
 import org.junit.Before
@@ -17,9 +16,9 @@ class SightingDetailsWorkflowTest {
         workflow = SightingDetailsBuilder(object : SightingDetails.Dependency {
             override val sightingsDataSource: SightingsDataSource
                 get() = TODO("Not yet implemented")
-        }).build(buildParams = BuildParams(
+        }).build(
             payload = SightingDetails.BuildParams(mock()),
-            buildContext = BuildContext.root(savedInstanceState = null))).also {
+            buildContext = BuildContext.root(savedInstanceState = null)).also {
             it.node.onCreate()
         }
     }
