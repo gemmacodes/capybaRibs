@@ -2,12 +2,10 @@ package com.switcherette.boarribs.new_sighting_container
 
 import androidx.lifecycle.Lifecycle
 import com.badoo.ribs.core.view.RibView
-import com.badoo.ribs.routing.Routing
 import com.badoo.ribs.routing.source.backstack.BackStack
 import com.badoo.ribs.routing.source.backstack.operation.replace
 import com.badoo.ribs.rx2.clienthelper.connector.Connectable
 import com.badoo.ribs.rx2.clienthelper.connector.NodeConnector
-import com.badoo.ribs.test.assertEquals
 import com.badoo.ribs.test.builder.RibBuilderStub
 import com.badoo.ribs.test.emptyBuildParams
 import com.badoo.ribs.test.node.RibNodeStub
@@ -22,7 +20,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.*
 import org.robolectric.RobolectricTestRunner
 
@@ -60,18 +57,13 @@ class NewSightingContainerRouterTest() {
     }
 
     private val routerTestHelper = RibRouterTestHelper(
-        buildParams = emptyBuildParams(),
+        buildParams = com.badoo.ribs.test.emptyBuildParams(),
         NewSightingContainerRouter(
             buildParams = emptyBuildParams(),
             builders = builders,
             routingSource = backStack,
         )
     )
-
-    @After
-    fun afterEach() {
-        routerTestHelper.close()
-    }
 
     @Before
     fun setup() {
@@ -80,6 +72,12 @@ class NewSightingContainerRouterTest() {
             builders = builders,
             routingSource = backStack
         )
+    }
+
+
+    @After
+    fun afterEach() {
+        routerTestHelper.close()
     }
 
     @Test

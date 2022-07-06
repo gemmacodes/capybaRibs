@@ -57,6 +57,7 @@ class NewSightingFormViewImpl private constructor(
 
     override fun accept(vm: ViewModel) {
         with(binding) {
+            R.id.ll_form
 
             vm.picture?.let {
                 Log.d("CameraX", it.toUri().path!!)
