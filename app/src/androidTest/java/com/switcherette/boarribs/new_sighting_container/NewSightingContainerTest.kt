@@ -30,11 +30,6 @@ class NewSightingContainerTest {
     // TODO use rib for interactions based on it implementing Connectable<Input, Output>
     lateinit var rib: NewSightingContainer
 
-    // Send inputs to the Rib
-    private val input = PublishRelay.create<NewSightingContainer.Input>()
-
-    // Verify outputs from the Rib
-    private val output = PublishRelay.create<NewSightingContainer.Output>()
 
     private fun buildRib(ribTestActivity: RibTestActivity, savedInstanceState: Bundle?) =
         NewSightingContainerBuilder(
@@ -50,15 +45,7 @@ class NewSightingContainerTest {
             }
         ).build(root(savedInstanceState)).also {
             rib = it
-            // Wire inputs and outputs
-            input.subscribe(it.input)
-            it.output.subscribe(output)
         }
-
-    @Before
-    fun before() {
-        ribsRule.start { activity, bundle -> buildRib(activity, bundle) }
-    }
 
     @Test
     fun test() {

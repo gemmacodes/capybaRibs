@@ -70,10 +70,10 @@ internal class NewSightingContainerInteractor(
             .events(this)
             .observe { event ->
                 if (event.requestCode == REQUEST_GEOLOCATION && event is PermissionRequester.RequestPermissionsEvent.RequestPermissionsResult) {
-                    NewSightingMap.Input.GrantPermissions(event.granted)
+                    newSightingMapInputRelay.accept(NewSightingMap.Input.GrantPermissions(event.granted))
                 }
                 if (event.requestCode == REQUEST_IMAGE_ACCESS && event is PermissionRequester.RequestPermissionsEvent.RequestPermissionsResult) {
-                    Camera.Input.GrantPermissions(event.granted)
+                    cameraInputRelay.accept(Camera.Input.GrantPermissions(event.granted))
                 }
             }
     }

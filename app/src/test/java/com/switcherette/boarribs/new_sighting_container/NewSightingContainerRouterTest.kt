@@ -20,7 +20,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.*
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
 import org.robolectric.RobolectricTestRunner
 
 
@@ -57,12 +58,12 @@ class NewSightingContainerRouterTest() {
     }
 
     private val routerTestHelper = RibRouterTestHelper(
-        buildParams = com.badoo.ribs.test.emptyBuildParams(),
+        buildParams = emptyBuildParams(),
         NewSightingContainerRouter(
             buildParams = emptyBuildParams(),
             builders = builders,
             routingSource = backStack,
-        )
+        ),
     )
 
     @Before
@@ -70,10 +71,9 @@ class NewSightingContainerRouterTest() {
         router = NewSightingContainerRouter(
             buildParams = emptyBuildParams(),
             builders = builders,
-            routingSource = backStack
+            routingSource = backStack,
         )
     }
-
 
     @After
     fun afterEach() {
@@ -100,7 +100,9 @@ class NewSightingContainerRouterTest() {
             Coordinates(LATITUDE, LONGITUDE)))
 
         newSightingFormBuilder.assertLastNodeState(Lifecycle.State.CREATED)
-        newSightingFormBuilder.assertLastParam(NewSightingForm.BuildParams(Coordinates(LATITUDE, LONGITUDE)))
+        newSightingFormBuilder.assertLastParam(
+            NewSightingForm.BuildParams(Coordinates(LATITUDE, LONGITUDE))
+        )
     }
 
 
