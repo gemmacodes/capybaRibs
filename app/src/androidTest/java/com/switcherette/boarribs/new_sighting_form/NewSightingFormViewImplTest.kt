@@ -7,10 +7,9 @@ import androidx.test.espresso.action.Press
 import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.assertion.ViewAssertions.*
-import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.platform.app.InstrumentationRegistry
 import com.badoo.ribs.test.view.RibsViewRule
 import com.switcherette.boarribs.R
@@ -30,14 +29,19 @@ class NewSightingFormViewImplTest {
 
     @Test
     fun WHEN_picture_not_null_THEN_thumbnail_shows() {
-        runOnMainSync { rule.view.accept(NewSightingFormView.ViewModel(picture = Uri.parse(PICTURE).toString())) }
+        runOnMainSync {
+            rule.view.accept(NewSightingFormView.ViewModel(picture = Uri.parse(PICTURE).toString()))
+        }
 
         onView(withId(R.id.iv_thumbnail)).check(matches(isDisplayed()))
     }
 
+
     @Test
     fun WHEN_press_save_button_THEN_send_save_event() {
-        runOnMainSync { rule.view.accept(NewSightingFormView.ViewModel(picture = Uri.parse(PICTURE).toString())) }
+        runOnMainSync {
+            rule.view.accept(NewSightingFormView.ViewModel(picture = Uri.parse(PICTURE).toString()))
+        }
 
         val observer = rule.view.subscribeOnTestObserver()
 
@@ -77,7 +81,8 @@ class NewSightingFormViewImplTest {
         private const val ADULTS = "2"
         private const val PUPS = "1"
         private const val COMMENT = "comment"
-        private const val PICTURE = "android.resource://com.switcherette.boarribs/" + R.drawable.capybara
+        private const val PICTURE =
+            "android.resource://com.switcherette.boarribs/" + R.drawable.capybara
     }
 
 }
