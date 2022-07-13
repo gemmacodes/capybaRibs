@@ -9,6 +9,8 @@ import com.badoo.ribs.test.RibTestActivity
 import com.badoo.ribs.core.modality.BuildContext.Companion.root
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.switcherette.boarribs.data.SightingsDataSource
+import com.switcherette.boarribs.utils.IdHelper
+import com.switcherette.boarribs.utils.TimeHelper
 import org.junit.Rule
 import org.junit.Test
 
@@ -26,6 +28,12 @@ class AppRootTest {
                 override val sightingsDataSource: SightingsDataSource
                     get() = TODO("Not yet implemented")
                 override val locationClient: FusedLocationProviderClient
+                    get() = TODO("Not yet implemented")
+                override val timeHelper: TimeHelper
+                    get() = TODO("Not yet implemented")
+                override val idHelper: IdHelper
+                    get() = TODO("Not yet implemented")
+                override val defaultPictureUrl: String
                     get() = TODO("Not yet implemented")
                 override val dialogLauncher: DialogLauncher
                     get() = TODO("Not yet implemented")

@@ -1,15 +1,15 @@
 package com.switcherette.boarribs.new_sighting_form
 
 import android.os.Bundle
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.*
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.GeneralLocation
 import androidx.test.espresso.action.Press
 import androidx.test.espresso.action.Tap
-import androidx.test.espresso.action.ViewActions.*
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.RootMatchers
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.badoo.ribs.core.modality.BuildContext
 import com.badoo.ribs.test.RibTestActivity
 import com.badoo.ribs.test.RibsRule
@@ -18,11 +18,12 @@ import com.switcherette.boarribs.R
 import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.data.SightingsDataSource
 import com.switcherette.boarribs.data.SightingsDataSourceImpl
-import org.hamcrest.Matchers
-import org.junit.Before
+import com.switcherette.boarribs.utils.IdHelper
+import com.switcherette.boarribs.utils.TimeHelper
+import kotlinx.coroutines.delay
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
+import org.mockito.Mockito.mock
 
 
 class NewSightingFormTest {
@@ -44,6 +45,12 @@ class NewSightingFormTest {
             object : NewSightingForm.Dependency {
                 override val sightingsDataSource: SightingsDataSource
                     get() = SightingsDataSourceImpl
+                override val timeHelper: TimeHelper
+                    get() = TimeHelper()
+                override val idHelper: IdHelper
+                    get() = IdHelper()
+                override val defaultPictureUrl: String
+                    get() = PICTURE
             }
         ).build(
             payload = NewSightingForm.BuildParams(Coordinates(LATITUDE, LONGITUDE)),
@@ -54,7 +61,7 @@ class NewSightingFormTest {
 
     @Test
     fun GIVEN_completed_form_WHEN_press_save_button_THEN_send_SightingAdded_Output() {
-       val outputTest = output.test()
+        val outputTest = rib.output.test()
 
         onView(withId(R.id.etHeading)).perform(replaceText(TITLE))
         onView(withId(R.id.et_comment)).perform(replaceText(COMMENT))
@@ -66,8 +73,16 @@ class NewSightingFormTest {
 
         onView(withId(R.id.fab_addForm)).perform(click())
 
-        //outputTest.assertValue(NewSightingForm.Output.SightingAdded)
-        //onView(withId(R.id.rv_show_list)).check(ViewAssertions.matches(isDisplayed()))
+        outputTest.assertValue(NewSightingForm.Output.SightingAdded)
+    }
+
+    @Test
+    fun GIVEN_not_completed_form_WHEN_press_save_button_THEN_send_SightingAdded_Output() {
+        val outputTest = rib.output.test()
+
+        onView(withId(R.id.fab_addForm)).perform(click())
+
+        outputTest.assertNever(NewSightingForm.Output.SightingAdded)
     }
 
     companion object {
@@ -77,5 +92,6 @@ class NewSightingFormTest {
         private const val ADULTS = "2"
         private const val PUPS = "1"
         private const val COMMENT = "comment"
+        private const val PICTURE = "PICTURE"
     }
 }
