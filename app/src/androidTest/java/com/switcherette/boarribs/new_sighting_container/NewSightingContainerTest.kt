@@ -14,10 +14,13 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.switcherette.boarribs.R
 import com.switcherette.boarribs.data.SightingsDataSource
 import com.switcherette.boarribs.new_sighting_form.NewSightingForm
+import com.switcherette.boarribs.utils.IdHelper
+import com.switcherette.boarribs.utils.TimeHelper
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
+import org.mockito.Mockito.*
 
 class NewSightingContainerTest {
 
@@ -35,13 +38,19 @@ class NewSightingContainerTest {
         NewSightingContainerBuilder(
             object : NewSightingContainer.Dependency {
                 override val sightingsDataSource: SightingsDataSource
-                    get() = Mockito.mock(SightingsDataSource::class.java)
+                    get() = mock(SightingsDataSource::class.java)
                 override val locationClient: FusedLocationProviderClient
-                    get() = Mockito.mock(FusedLocationProviderClient::class.java)
+                    get() = mock(FusedLocationProviderClient::class.java)
+                override val timeHelper: TimeHelper
+                    get() = TimeHelper()
+                override val idHelper: IdHelper
+                    get() = IdHelper()
+                override val defaultPictureUrl: String
+                    get() = "filepath.jpg"
                 override val permissionRequester: PermissionRequester
-                    get() = Mockito.mock(PermissionRequester::class.java)
+                    get() = mock(PermissionRequester::class.java)
                 override val activityStarter: ActivityStarter
-                    get() = Mockito.mock(ActivityStarter::class.java)
+                    get() = mock(ActivityStarter::class.java)
             }
         ).build(root(savedInstanceState)).also {
             rib = it

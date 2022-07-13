@@ -6,9 +6,12 @@ import com.badoo.ribs.android.permissionrequester.PermissionRequester
 import com.badoo.ribs.core.modality.BuildContext
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.switcherette.boarribs.data.SightingsDataSource
+import com.switcherette.boarribs.utils.IdHelper
+import com.switcherette.boarribs.utils.TimeHelper
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class AppRootWorkflowTest {
 
@@ -18,15 +21,21 @@ class AppRootWorkflowTest {
     fun setup() {
         workflow = AppRootBuilder(object : AppRoot.Dependency {
             override val sightingsDataSource: SightingsDataSource
-                get() = TODO("Not yet implemented")
+                get() = mock()
             override val locationClient: FusedLocationProviderClient
-                get() = TODO("Not yet implemented")
+                get() = mock()
+            override val timeHelper: TimeHelper
+                get() = mock()
+            override val idHelper: IdHelper
+                get() = mock()
+            override val defaultPictureUrl: String
+                get() = mock()
             override val dialogLauncher: DialogLauncher
-                get() = TODO("Not yet implemented")
+                get() = mock()
             override val activityStarter: ActivityStarter
-                get() = TODO("Not yet implemented")
+                get() = mock()
             override val permissionRequester: PermissionRequester
-                get() = TODO("Not yet implemented")
+                get() = mock()
         }).build(BuildContext.root(savedInstanceState = null)).also {
             it.node.onCreate()
         }

@@ -1,26 +1,30 @@
 package com.switcherette.boarribs.new_sighting_form.feature
 
 import android.net.Uri
+import androidx.annotation.VisibleForTesting
 import com.badoo.mvicore.element.Actor
 import com.badoo.mvicore.element.NewsPublisher
 import com.badoo.mvicore.element.Reducer
 import com.badoo.mvicore.feature.BaseFeature
-import com.badoo.ribs.android.activitystarter.ActivityStarter
 import com.switcherette.boarribs.R
 import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.data.Sighting
 import com.switcherette.boarribs.data.SightingsDataSource
 import com.switcherette.boarribs.new_sighting_form.feature.NewSightingFormFeature.*
+import com.switcherette.boarribs.utils.IdHelper
+import com.switcherette.boarribs.utils.TimeHelper
 import io.reactivex.Observable
-import java.util.*
 
 internal class NewSightingFormFeature(
     dataSource: SightingsDataSource,
-    coordinates: Coordinates
+    coordinates: Coordinates,
+    timeHelper: TimeHelper,
+    idHelper: IdHelper,
+    defaultPictureUrl :String,
 ) : BaseFeature<Wish, Action, Effect, State, News>(
-    initialState = State(),
+    initialState = State(picture = defaultPictureUrl),
     wishToAction = Action::ExecuteWish,
-    actor = ActorImpl(dataSource, coordinates),
+    actor = ActorImpl(dataSource, coordinates, timeHelper, idHelper),
     reducer = ReducerImpl(),
     newsPublisher = NewsPublisherImpl(),
 ) {
@@ -34,7 +38,7 @@ internal class NewSightingFormFeature(
         val comments: String? = null,
         val coordinates: Coordinates? = null,
         val timestamp: Long? = null,
-        val picture: String? = null,
+        val picture: String,
     )
 
     sealed class Wish {
@@ -70,6 +74,8 @@ internal class NewSightingFormFeature(
     class ActorImpl(
         private val dataSource: SightingsDataSource,
         private val coordinates: Coordinates,
+        private val timeHelper: TimeHelper,
+        private val idHelper: IdHelper,
     ) : Actor<State, Action, Effect> {
         override fun invoke(state: State, action: Action): Observable<Effect> =
             when (action) {
@@ -92,17 +98,15 @@ internal class NewSightingFormFeature(
             } else {
                 dataSource.saveSighting(
                     Sighting(
-                        id = UUID.randomUUID().toString(),
+                        id = idHelper.randomId(),
                         heading = wish.heading,
                         adults = wish.adults.toInt(),
                         pups = wish.pups.toInt(),
                         interaction = wish.interaction,
                         comments = if (wish.comments.isNullOrEmpty()) "No comments" else wish.comments,
                         coordinates = coordinates,
-                        timestamp = System.currentTimeMillis(),
+                        timestamp = timeHelper.currentTimeMillis(),
                         picture = state.picture
-                            ?: Uri.parse("android.resource://com.switcherette.boarribs/" + R.drawable.capybara)
-                                .toString()
                     ))
                 Observable.just(Effect.SightingSaved)
             }

@@ -5,6 +5,8 @@ import com.badoo.ribs.android.permissionrequester.PermissionRequester
 import com.badoo.ribs.core.modality.BuildContext
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.switcherette.boarribs.data.SightingsDataSource
+import com.switcherette.boarribs.utils.IdHelper
+import com.switcherette.boarribs.utils.TimeHelper
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -20,6 +22,12 @@ class NewSightingContainerWorkflowTest {
             override val sightingsDataSource: SightingsDataSource
                 get() = mock()
             override val locationClient: FusedLocationProviderClient
+                get() = mock()
+            override val timeHelper: TimeHelper
+                get() = mock()
+            override val idHelper: IdHelper
+                get() = mock()
+            override val defaultPictureUrl: String
                 get() = mock()
             override val permissionRequester: PermissionRequester
                 get() = mock()

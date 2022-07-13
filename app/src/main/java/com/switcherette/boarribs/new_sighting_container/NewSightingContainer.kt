@@ -14,6 +14,8 @@ import com.switcherette.boarribs.data.SightingsDataSource
 import com.switcherette.boarribs.new_sighting_container.NewSightingContainer.Input
 import com.switcherette.boarribs.new_sighting_container.NewSightingContainer.Output
 import com.switcherette.boarribs.new_sighting_container.routing.NewSightingContainerRouter
+import com.switcherette.boarribs.utils.IdHelper
+import com.switcherette.boarribs.utils.TimeHelper
 import io.reactivex.Single
 
 interface NewSightingContainer : Rib, Connectable<Input, Output> {
@@ -21,6 +23,9 @@ interface NewSightingContainer : Rib, Connectable<Input, Output> {
     interface Dependency : CanProvidePermissionRequester, CanProvideActivityStarter {
         val sightingsDataSource: SightingsDataSource
         val locationClient: FusedLocationProviderClient
+        val timeHelper: TimeHelper
+        val idHelper: IdHelper
+        val defaultPictureUrl: String
     }
 
     sealed class Input

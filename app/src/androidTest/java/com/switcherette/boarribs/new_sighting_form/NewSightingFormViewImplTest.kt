@@ -8,15 +8,17 @@ import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.badoo.ribs.test.view.RibsViewRule
 import com.switcherette.boarribs.R
 import io.reactivex.ObservableSource
 import io.reactivex.observers.TestObserver
+import org.hamcrest.Matchers.not
 import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 import java.util.concurrent.atomic.AtomicReference
 
 
@@ -63,6 +65,33 @@ class NewSightingFormViewImplTest {
         ))
     }
 
+    @Test
+    fun WHEN_press_camera_button_THEN_send_CameraRequested_event() {
+        runOnMainSync {
+            rule.view.accept(NewSightingFormView.ViewModel(picture = Uri.parse(PICTURE).toString()))
+        }
+
+        val observer = rule.view.subscribeOnTestObserver()
+
+        onView(withId(R.id.btn_add_picture)).perform(click())
+
+        observer.assertValue(NewSightingFormView.Event.CameraRequested)
+    }
+
+//    @Test
+//    fun WHEN_press_save_button_with_empty_fields_THEN_toast_shown() {
+//        runOnMainSync {
+//            rule.view.accept(NewSightingFormView.ViewModel(picture = Uri.parse(PICTURE).toString()))
+//        }
+//        onView(withId(R.id.fab_addForm)).perform(click())
+//
+//        onView(withText(R.string.mandatory_fields_toast))
+//            .inRoot(withDecorView(not(rule.activity.window.decorView)))
+//            .check(matches(isDisplayed()))
+//
+//    }
+
+
     private fun <T> ObservableSource<T>.subscribeOnTestObserver() = TestObserver<T>().apply {
         subscribe(this)
     }
@@ -86,3 +115,5 @@ class NewSightingFormViewImplTest {
     }
 
 }
+
+

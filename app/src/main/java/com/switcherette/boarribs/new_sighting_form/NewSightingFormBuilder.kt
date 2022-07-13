@@ -4,7 +4,6 @@ import com.badoo.ribs.builder.Builder
 import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.rx2.disposables
 import com.switcherette.boarribs.data.Coordinates
-import com.switcherette.boarribs.data.SightingsDataSource
 import com.switcherette.boarribs.new_sighting_form.feature.NewSightingFormFeature
 
 class NewSightingFormBuilder(
@@ -13,20 +12,22 @@ class NewSightingFormBuilder(
 
     override fun build(buildParams: BuildParams<NewSightingForm.BuildParams>): NewSightingForm {
         val customisation = buildParams.getOrDefault(NewSightingForm.Customisation())
-        val feature = feature(
-            dependency.sightingsDataSource,
-            buildParams.payload.coordinates
-        )
+        val feature = feature(buildParams.payload.coordinates)
         val interactor = interactor(buildParams, feature)
 
         return node(buildParams, customisation, feature, interactor)
     }
 
     private fun feature(
-        dataSource: SightingsDataSource,
         coordinates: Coordinates,
     ) =
-        NewSightingFormFeature(dataSource, coordinates)
+        NewSightingFormFeature(
+            dependency.sightingsDataSource,
+            coordinates,
+            dependency.timeHelper,
+            dependency.idHelper,
+            dependency.defaultPictureUrl,
+        )
 
     private fun interactor(
         buildParams: BuildParams<*>,

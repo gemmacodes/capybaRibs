@@ -46,7 +46,7 @@ class NewSightingContainerInteractorTest {
     }
 
     @Test
-    fun `GIVEN permissions given WHEN Camera child sends PermissionsRequired output THEN GrantPermissions Input is sent`() {
+    fun `GIVEN_permissions_given_WHEN_Camera_child_sends_PermissionsRequired_Output_THEN_GrantPermissions_Input_is_sent`() {
 
         val camera =
             object : RibNodeStub<CameraView>(interactorTestHelper.createChildBuildParams()), Camera,
@@ -66,7 +66,7 @@ class NewSightingContainerInteractorTest {
     }
 
     @Test
-    fun `GIVEN permissions allowed WHEN Camera child sends PermissionsRequired output THEN GrantPermissions Input is sent`() {
+    fun `GIVEN_permissions_allowed_WHEN_Camera_child_sends_PermissionsRequired_Output_THEN_GrantPermissions_Input_is_sent`() {
 
         val camera =
             object : RibNodeStub<CameraView>(interactorTestHelper.createChildBuildParams()), Camera,
@@ -87,7 +87,7 @@ class NewSightingContainerInteractorTest {
     }
 
     @Test
-    fun `GIVEN permissions given WHEN NewSightingMap child sends PermissionsRequired output THEN GrantPermissions Input is sent`() {
+    fun `GIVEN_permissions_given_WHEN_NewSightingMap_child_sends_PermissionsRequired_output_THEN_GrantPermissions_Input_is_sent`() {
 
         val map =
             object : RibNodeStub<NewSightingMapView>(interactorTestHelper.createChildBuildParams()), Camera,
@@ -107,7 +107,7 @@ class NewSightingContainerInteractorTest {
     }
 
     @Test
-    fun `GIVEN permissions allowed WHEN NewSightingMap child sends PermissionsRequired output THEN GrantPermissions Input is sent`() {
+    fun `GIVEN_permissions_allowed_WHEN_NewSightingMap_child_sends_PermissionsRequired_output_THEN_GrantPermissions_Input_is_sent`() {
 
         val map =
             object : RibNodeStub<NewSightingMapView>(interactorTestHelper.createChildBuildParams()), Camera,

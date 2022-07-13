@@ -12,6 +12,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.switcherette.boarribs.app_root.AppRoot.Input
 import com.switcherette.boarribs.app_root.AppRoot.Output
 import com.switcherette.boarribs.data.SightingsDataSource
+import com.switcherette.boarribs.utils.IdHelper
+import com.switcherette.boarribs.utils.TimeHelper
 
 interface AppRoot : Rib, Connectable<Input, Output> {
 
@@ -19,6 +21,9 @@ interface AppRoot : Rib, Connectable<Input, Output> {
         CanProvidePermissionRequester {
         val sightingsDataSource: SightingsDataSource
         val locationClient: FusedLocationProviderClient
+        val timeHelper: TimeHelper
+        val idHelper: IdHelper
+        val defaultPictureUrl: String
     }
 
     sealed class Input {
