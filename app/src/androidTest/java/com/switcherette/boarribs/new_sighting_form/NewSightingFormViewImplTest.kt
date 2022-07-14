@@ -76,20 +76,6 @@ class NewSightingFormViewImplTest {
         observer.assertValue(NewSightingFormView.Event.CameraRequested)
     }
 
-//    @Test
-//    fun WHEN_press_save_button_with_empty_fields_THEN_toast_shown() {
-//        runOnMainSync {
-//            rule.view.accept(NewSightingFormView.ViewModel(picture = Uri.parse(PICTURE).toString()))
-//        }
-//        onView(withId(R.id.fab_addForm)).perform(click())
-//
-//        onView(withText(R.string.mandatory_fields_toast))
-//            .inRoot(withDecorView(not(rule.activity.window.decorView)))
-//            .check(matches(isDisplayed()))
-//
-//    }
-
-
     private fun <T> ObservableSource<T>.subscribeOnTestObserver() = TestObserver<T>().apply {
         subscribe(this)
     }

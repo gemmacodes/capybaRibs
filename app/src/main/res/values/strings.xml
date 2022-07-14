@@ -7,7 +7,7 @@
     <string name="take_photo">Take photo</string>
     <string name="choose_gallery">Choose from gallery</string>
     <string name="cancel_photo">Cancel</string>
-    <string name="mandatory_fields_toast">\'Title\', \'Adults\' and \'Piglets\' are mandatory fields!</string>
+    <string name="mandatory_fields_toast">\'Title\', \'Adults\' and \'Pups\' are mandatory fields!</string>
     <string name="all_sightings">All Sightings</string>
     <string name="reported_capybaras">capybaras reported so far...</string>
     <string name="loading">Loading...</string>

@@ -27,9 +27,7 @@
         android:layout_height="0dp"
         mapbox:layout_constraintBottom_toBottomOf="parent"
         mapbox:layout_constraintStart_toStartOf="parent"
-        mapbox:layout_constraintTop_toBottomOf="@id/tvWelcome"
-        mapbox:mapbox_cameraTargetLat="37.4221"
-        mapbox:mapbox_cameraTargetLng="-122.0841" />
+        mapbox:layout_constraintTop_toBottomOf="@id/tvWelcome"/>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clAddMap"

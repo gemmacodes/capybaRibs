@@ -19,6 +19,7 @@ import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.switcherette.boarribs.R
 import com.switcherette.boarribs.all_sightings_map.AllSightingsMapView.Event
 import com.switcherette.boarribs.all_sightings_map.AllSightingsMapView.ViewModel
+import com.switcherette.boarribs.data.Coordinates
 import com.switcherette.boarribs.data.Sighting
 import com.switcherette.boarribs.utils.bitmapFromDrawableRes
 import io.reactivex.ObservableSource
@@ -37,7 +38,9 @@ interface AllSightingsMapView : RibView,
         object Loading : ViewModel()
         data class Content(
             val sightings: List<Sighting>,
+            val coordinates: Coordinates
             ) : ViewModel()
+
     }
 
     fun interface Factory : ViewFactory<AllSightingsMapView>
@@ -62,11 +65,7 @@ class AllSightingsMapViewImpl private constructor(
     }
 
     fun bind(vm: ViewModel) {
-        sightingsMap.getMapboxMap().setCamera(
-            CameraOptions.Builder()
-                .zoom(11.0)
-                .build()
-        )
+
         sightingsMap.getMapboxMap().loadStyleUri(
             Style.MAPBOX_STREETS
         ) {
@@ -75,6 +74,12 @@ class AllSightingsMapViewImpl private constructor(
                     addBoarAnnotations(vm.sightings)
                     loadingAnimation.visibility = View.GONE
                     sightingsReported.text = vm.sightings.size.toString() + " " + context.getString(R.string.reported_capybaras)
+                    sightingsMap.getMapboxMap().setCamera(
+                        CameraOptions.Builder()
+                            .zoom(12.0)
+                            .center(Point.fromLngLat(vm.coordinates.longitude, vm.coordinates.latitude))
+                            .build()
+                    )
                 }
                 is ViewModel.Loading -> {
                     loadingAnimation.visibility = View.VISIBLE
@@ -100,7 +105,7 @@ class AllSightingsMapViewImpl private constructor(
                         R.drawable.capibara
                     )!!
                 )
-                .withIconSize(0.2)
+                .withIconSize(0.3)
             pointAnnotationManager.addClickListener {
                 run { events.accept(Event.LoadSightingDetails(sighting.id)) }
                 true

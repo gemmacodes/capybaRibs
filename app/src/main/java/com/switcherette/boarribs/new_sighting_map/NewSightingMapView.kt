@@ -115,7 +115,7 @@ class NewSightingMapViewImpl private constructor(
             val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
                 .withPoint(Point.fromLngLat(coordinates.longitude, coordinates.latitude))
                 .withIconImage(it)
-                .withIconSize(0.2)
+                .withIconSize(0.3)
                 .withDraggable(true)
 
             pointAnnotationManager.addDragListener(dragListener)

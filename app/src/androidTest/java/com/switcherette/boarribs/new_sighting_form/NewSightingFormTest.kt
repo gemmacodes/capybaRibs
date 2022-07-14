@@ -37,9 +37,6 @@ class NewSightingFormTest {
 
     lateinit var rib: NewSightingForm
 
-    // Verify outputs from the Rib
-    private val output = PublishRelay.create<NewSightingForm.Output>()
-
     private fun buildRib(ribTestActivity: RibTestActivity, savedInstanceState: Bundle?) =
         NewSightingFormBuilder(
             object : NewSightingForm.Dependency {
@@ -83,6 +80,15 @@ class NewSightingFormTest {
         onView(withId(R.id.fab_addForm)).perform(click())
 
         outputTest.assertNever(NewSightingForm.Output.SightingAdded)
+    }
+
+    @Test
+    fun WHEN_click_on_addPicture_THEN_send_CameraRequested_Output() {
+        val outputTest = rib.output.test()
+
+        onView(withId(R.id.btn_add_picture)).perform(click())
+
+        outputTest.assertValue(NewSightingForm.Output.CameraRequested)
     }
 
     companion object {

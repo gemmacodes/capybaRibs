@@ -123,7 +123,6 @@ internal class NewSightingMapFeature(
                     LOCATION_PERMISSIONS)
                 else -> null
             }
-
     }
 
     class PostProcessorImpl : PostProcessor<Action, Effect, State> {

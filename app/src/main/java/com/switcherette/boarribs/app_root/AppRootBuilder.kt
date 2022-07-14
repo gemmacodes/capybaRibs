@@ -3,6 +3,7 @@
 package com.switcherette.boarribs.app_root
 
 import com.badoo.ribs.android.dialog.DialogLauncher
+import com.badoo.ribs.android.permissionrequester.PermissionRequester
 import com.badoo.ribs.builder.SimpleBuilder
 import com.badoo.ribs.core.modality.BuildParams
 import com.badoo.ribs.routing.source.RoutingSource
@@ -10,8 +11,6 @@ import com.badoo.ribs.routing.source.backstack.BackStack
 import com.switcherette.boarribs.app_root.routing.AppRootChildBuilders
 import com.switcherette.boarribs.app_root.routing.AppRootRouter
 import com.switcherette.boarribs.app_root.routing.AppRootRouter.Configuration
-import com.switcherette.boarribs.sighting_details.SightingDetails
-import com.switcherette.boarribs.sighting_details.dialog.SightingDetailsRibDialog
 
 class AppRootBuilder(
     private val dependency: AppRoot.Dependency,
@@ -21,13 +20,13 @@ class AppRootBuilder(
         val connections = AppRootChildBuilders(dependency)
         val customisation = buildParams.getOrDefault(AppRoot.Customisation())
         val backStack = backStack(buildParams)
-        val dialogLauncher = dependency.dialogLauncher
-        val interactor = interactor(buildParams, backStack, dialogLauncher)
+        val permissionRequester = dependency.permissionRequester
+        val interactor = interactor(buildParams, backStack, permissionRequester)
         val router = router(
             buildParams,
             backStack + RoutingSource.permanent(),
             connections,
-            dialogLauncher,
+            dependency.dialogLauncher,
         )
 
         return node(buildParams, customisation, interactor, router)
@@ -42,11 +41,11 @@ class AppRootBuilder(
     private fun interactor(
         buildParams: BuildParams<*>,
         backStack: BackStack<Configuration>,
-        dialogLauncher: DialogLauncher,
+        permissionRequester: PermissionRequester,
     ) = AppRootInteractor(
         buildParams = buildParams,
         backStack = backStack,
-        dialogLauncher = dialogLauncher
+        permissionRequester = permissionRequester
     )
 
     private fun router(
