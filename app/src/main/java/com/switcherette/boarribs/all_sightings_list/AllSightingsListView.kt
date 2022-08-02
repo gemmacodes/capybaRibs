@@ -51,7 +51,7 @@ class AllSightingsListViewImpl private constructor(
         events.accept(Event.LoadSightingDetails(it.id))
     }
 
-    private val loadingAnimation: GifImageView by lazy { findViewById(R.id.ivLoading)  }
+    private val loadingAnimation: GifImageView by lazy { findViewById(R.id.ivLoading) }
 
     override fun accept(vm: ViewModel) {
         when(vm){
